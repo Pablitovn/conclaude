@@ -17,6 +17,8 @@
   --cns-right-min: 220px;
   --cns-right-max: 420px;
   --cns-handle-w: 6px;
+  width: 100%;
+  min-width: 0;
   margin: 12px 0 0;
 }
 
@@ -24,6 +26,9 @@
   display: grid;
   grid-template-columns: var(--cns-left-w) var(--cns-handle-w) minmax(0, 1fr) var(--cns-handle-w) var(--cns-right-w);
   min-height: 0;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
   gap: 0;
 }
 
@@ -37,18 +42,23 @@
    del orden/visibilidad de los handles. */
 #cnsPanelLeft {
   grid-column: 1;
+  min-width: 0;
 }
 #cnsHandleLeft {
   grid-column: 2;
+  min-width: 0;
 }
 #cnsConsoleWrap {
   grid-column: 3;
+  min-width: 0;
 }
 #cnsHandleRight {
   grid-column: 4;
+  min-width: 0;
 }
 #cnsPanelRight {
   grid-column: 5;
+  min-width: 0;
 }
 
 @media (max-width: 1200px) {
@@ -80,6 +90,9 @@
 .cns-console {
   min-height: 0;
   min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
   --cns-vu-w: 90px;
   --cns-wave-h: 250px;
   --cns-ana-h: 150px;
@@ -105,6 +118,8 @@
 .cns-console-wrap {
   min-width: 0;
   min-height: 0;
+  width: 100%;
+  max-width: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -161,6 +176,8 @@
 .cns-panel {
   min-width: 0;
   min-height: 0;
+  width: 100%;
+  max-width: 100%;
   background: linear-gradient(180deg, var(--s2), var(--s));
   border: 1px solid var(--line);
   border-radius: var(--r2);

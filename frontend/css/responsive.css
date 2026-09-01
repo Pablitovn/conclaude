@@ -44,8 +44,14 @@
   }
 
   @media (max-width: 900px) {
+    body {
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
     .lg-app {
       height: auto;
+      min-height: 100vh;
       min-height: 100dvh;
       overflow: visible;
     }
@@ -76,6 +82,7 @@
     }
     .lg-main-stack {
       padding: 8px;
+      min-height: 40vh;
     }
     .sidebarResizeHandle {
       display: none;
