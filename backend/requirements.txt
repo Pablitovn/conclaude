@@ -6,7 +6,7 @@ numpy
 scipy
 librosa
 soundfile
-pydub  # fallback MP3 si ffmpeg no esta disponible en el sistema
+pydub>=0.25.1  # fallback MP3 si ffmpeg no esta disponible en el sistema
 # Python 3.13 eliminó el módulo "audioop" de la stdlib (PEP 594) y pydub lo
 # necesita internamente. audioop-lts lo reemplaza con el mismo API.
 audioop-lts>=0.2.2; python_version>="3.13"

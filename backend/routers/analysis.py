@@ -3,67 +3,75 @@ from __future__ import annotations
 import os
 import uuid
 
-import librosa
-import numpy as np
-
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.concurrency import run_in_threadpool
 
 try:
     from ..audio_service import AudioService
-    from ..mastering import analyze_audio, mix_advice, spectrum_analysis_fft, diagnostic_advice
-    from ..validation_utils import MAX_FILE_SIZE, validate_audio_file
-except ImportError:
+    from ..mastering import mix_advice, spectrum_analysis_fft
+    from ..validation_utils import validate_audio_file
+except ImportError:  # pragma: no cover
     from audio_service import AudioService
-    from mastering import analyze_audio, mix_advice, spectrum_analysis_fft, diagnostic_advice
-    from validation_utils import MAX_FILE_SIZE, validate_audio_file
+    from mastering import mix_advice, spectrum_analysis_fft
+    from validation_utils import validate_audio_file
 
 
 def _spectrum_from_file(file_path: str, n_fft: int, n_bins: int):
-    audio, sr = librosa.load(file_path, sr=None, mono=False)
-    if audio.ndim == 1:
-        audio = audio[np.newaxis, :]
-    return spectrum_analysis_fft(audio, sr, n_fft=n_fft, n_bins=n_bins)
+    service = AudioService()
+    return service.spectrum_file(file_path, n_fft=n_fft, n_bins=n_bins)
 
 
 def _analyze_from_file(file_path: str) -> dict:
-    """Fallback cuando AudioService no está disponible."""
     try:
-        audio, sr = librosa.load(file_path, sr=None, mono=False)
-        if audio.ndim == 1:
-            audio = audio[np.newaxis, :]
-        result = analyze_audio(audio, sr)
-        result["mix_advice"] = mix_advice(result)
-        return result
-    except Exception as exc:
-        raise HTTPException(500, f"Error analizando archivo: {exc}") from exc
+        return AudioService().analyze_file(file_path)
+    except Exception as e:
+        raise RuntimeError(f"Error analizando archivo: {e}") from e
 
 
 def create_analysis_router(*, upload_dir: str, read_and_validate, logger, current_user_dependency, audio_service: AudioService | None = None) -> APIRouter:
-    router = APIRouter()
+    router = APIRouter(tags=["Análisis"])
 
-    @router.post("/analyze", tags=["Análisis"])
-    async def analyze(file: UploadFile = File(...), current_user: dict = Depends(current_user_dependency)):
-        logger.info(f"🔍 {current_user['email']} analizando: {file.filename}")
+    @router.post("/analysis")
+    async def analyze_complete(
+        file: UploadFile = File(...),
+        n_fft: int = Query(4096, ge=256, le=16384),
+        n_bins: int = Query(64, ge=8, le=256),
+        current_user: dict = Depends(current_user_dependency),
+    ):
+        logger.info("🔍 %s análisis server-side: %s", current_user["email"], file.filename)
+        validate_audio_file(file.filename)
+        data = await read_and_validate(file)
+        tmp = os.path.join(upload_dir, f"analysis_{uuid.uuid4().hex}")
+        try:
+            with open(tmp, "wb") as fh:
+                fh.write(data)
+            if audio_service:
+                result = await run_in_threadpool(audio_service.analyze_with_spectrum, tmp, n_fft, n_bins)
+            else:
+                result = await run_in_threadpool(AudioService().analyze_with_spectrum, tmp, n_fft, n_bins)
+            logger.info("✓ Análisis completo server-side: %s", file.filename)
+            return result
+        except Exception as exc:
+            logger.error("❌ Error análisis server-side %s: %s", file.filename, exc, exc_info=True)
+            raise HTTPException(500, str(exc)) from exc
+        finally:
+            if os.path.exists(tmp):
+                os.remove(tmp)
+
+    @router.post("/analyze")
+    async def analyze_legacy(file: UploadFile = File(...), current_user: dict = Depends(current_user_dependency)):
         validate_audio_file(file.filename)
         data = await read_and_validate(file)
         tmp = os.path.join(upload_dir, f"analyze_{uuid.uuid4().hex}")
         try:
             with open(tmp, "wb") as fh:
                 fh.write(data)
-            result = await run_in_threadpool(audio_service.analyze_file, tmp) if audio_service else await run_in_threadpool(_analyze_from_file, tmp)
-            logger.info(f"✓ Análisis completado: {file.filename}")
-            return result
-        except HTTPException:
-            raise
-        except Exception as exc:
-            logger.error(f"❌ Error analizando {file.filename}: {exc}")
-            raise HTTPException(500, str(exc)) from exc
+            return await run_in_threadpool(audio_service.analyze_file if audio_service else _analyze_from_file, tmp)
         finally:
             if os.path.exists(tmp):
                 os.remove(tmp)
 
-    @router.post("/mix-advice", tags=["Análisis"])
+    @router.post("/mix-advice")
     async def get_mix_advice(file: UploadFile = File(...), current_user: dict = Depends(current_user_dependency)):
         validate_audio_file(file.filename)
         data = await read_and_validate(file)
@@ -71,38 +79,15 @@ def create_analysis_router(*, upload_dir: str, read_and_validate, logger, curren
         try:
             with open(tmp, "wb") as fh:
                 fh.write(data)
-            analysis = await run_in_threadpool(audio_service.analyze_file, tmp) if audio_service else await run_in_threadpool(_analyze_from_file, tmp)
+            analysis = await run_in_threadpool(audio_service.analyze_file if audio_service else _analyze_from_file, tmp)
             return {"analysis": analysis, **mix_advice(analysis)}
-        except HTTPException:
-            raise
         except Exception as exc:
             raise HTTPException(500, str(exc)) from exc
         finally:
             if os.path.exists(tmp):
                 os.remove(tmp)
 
-    @router.post("/diagnostic", tags=["Análisis"])
-    async def diagnostic(file: UploadFile = File(...), current_user: dict = Depends(current_user_dependency)):
-        """Diagnóstico técnico orientado a resolución: prioriza qué revisar primero."""
-        logger.info(f"🧭 {current_user['email']} ejecutando diagnóstico: {file.filename}")
-        validate_audio_file(file.filename)
-        data = await read_and_validate(file)
-        tmp = os.path.join(upload_dir, f"diagnostic_{uuid.uuid4().hex}")
-        try:
-            with open(tmp, "wb") as fh:
-                fh.write(data)
-            analysis = await run_in_threadpool(audio_service.analyze_file, tmp) if audio_service else await run_in_threadpool(_analyze_from_file, tmp)
-            return diagnostic_advice(analysis)
-        except HTTPException:
-            raise
-        except Exception as exc:
-            logger.error(f"❌ Error en diagnóstico {file.filename}: {exc}")
-            raise HTTPException(500, str(exc)) from exc
-        finally:
-            if os.path.exists(tmp):
-                os.remove(tmp)
-
-    @router.post("/spectrum", tags=["Análisis"])
+    @router.post("/spectrum")
     async def spectrum(
         file: UploadFile = File(...),
         n_fft: int = Query(4096, ge=256, le=16384),
@@ -115,12 +100,9 @@ def create_analysis_router(*, upload_dir: str, read_and_validate, logger, curren
         try:
             with open(tmp, "wb") as fh:
                 fh.write(data)
-            
             if audio_service:
                 return await run_in_threadpool(audio_service.spectrum_file, tmp, n_fft, n_bins)
             return await run_in_threadpool(_spectrum_from_file, tmp, n_fft, n_bins)
-        except HTTPException:
-            raise
         except Exception as exc:
             raise HTTPException(500, str(exc)) from exc
         finally:

@@ -5,8 +5,7 @@ from fastapi import APIRouter, HTTPException
 
 def create_info_router(*, app, jobs, upload_dir: str, processed_dir: str, stems_dir: str,
                        max_file_size: int, mastering_presets: dict, get_preset,
-                       platform_loudness_targets: dict, frontend_origin: str | None = None,
-                       reference_library_module=None) -> APIRouter:
+                       platform_loudness_targets: dict) -> APIRouter:
     router = APIRouter()
 
     @router.get("/", tags=["Info"])
@@ -27,17 +26,13 @@ def create_info_router(*, app, jobs, upload_dir: str, processed_dir: str, stems_
 
     @router.get("/health", tags=["Info"])
     def health():
-        payload = {
+        return {
             "status": "ok",
             "service": "Audio Mastering API",
             "version": app.version,
             "jobs": len(jobs.get_all()),
             "max_file_size_mb": max_file_size // 1024 // 1024,
-            "frontend_origin": frontend_origin,
         }
-        if reference_library_module is not None:
-            payload["reference_library"] = reference_library_module.diagnostics()
-        return payload
 
     @router.get("/presets", tags=["Presets"])
     def list_presets():
