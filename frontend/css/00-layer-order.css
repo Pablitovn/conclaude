@@ -1,0 +1,90 @@
+/* ============================================================
+   00-layer-order.css — ORDEN GLOBAL DE CASCADE LAYERS
+   ------------------------------------------------------------
+   Este archivo tiene que ser el PRIMER <link> del <head>, antes
+   que cualquier otro CSS. Es la única línea que le importa a esta
+   hoja de estilos — no tiene ninguna regla, solo fija el orden.
+
+   Por qué existe: había nombres de @layer repartidos en el proyecto
+   y CERO declaraciones de orden. Sin esto, CSS decide la prioridad
+   de las capas por la primera vez que aparece cada nombre en la
+   cascada — es decir, por el orden accidental de los <link> en el
+   HTML. Reordenar un link o agregar un archivo nuevo más arriba
+   cambiaba silenciosamente qué capa le gana a cuál.
+
+   Regla de lectura: las capas listadas MÁS A LA DERECHA ganan por
+   sobre las de la izquierda. Por eso 'responsive' y 'accessibility'
+   van casi al final — así los media queries y los estilos de
+   accesibilidad siempre pueden pisar cualquier regla de layout o de
+   componente, sin importar en qué archivo estén. 'utilities' y
+   'boceto' van después de todo a propósito: son clases utilitarias
+   y de prueba pensadas para ganarle a cualquier otra cosa.
+
+   ACTUALIZACIÓN: ya no queda ningún archivo de css/ sin @layer.
+   Los 8 que faltaban (00-variables-theme, 02-header, 05-components,
+   08-auth-ai-ui, studio-theme, 99-utilities y
+   console-shell) se envolvieron cada uno en su propia capa nombrada
+   y se agregaron acá. En particular, 00-variables-theme.css estaba
+   sin @layer a propósito para que sus variables --v4-*/--lg-*
+   ganaran siempre — pero eso hacía que los @media de responsive.css
+   que pisan --v4-gap/--lg-sidebar-w/--lg-shell-header-h en pantallas
+   chicas NUNCA se aplicaran. Ahora 'variables' vive bien abajo en
+   este orden (antes que 'responsive'), así el breakpoint gana cuando
+   corresponde. 'header' y 'console-shell' también se ubicaron antes
+   de 'responsive' por el mismo motivo (headers y paneles con reglas
+   propias que los @media necesitan poder pisar).
+   ============================================================ */
+/* CL-1: 'tokens' se eliminó porque @layer tokens estaba vacío y sus
+   utilities se movieron a @layer utilities (99-utilities.css). */
+@layer variables, reset, main-grid, header, components, panel-left-shell, sidebar, studio-left, workspace-shell, workspace, console, console-master, studio-center, console-center-group-b, console-shell, pro-console, studio-right, studio-theme, auth-ai, stage-visibility, responsive, accessibility, utilities;
+
+/* ───────────────────────────────────────────────────────────────────────
+   CONVENCIÓN DE PREFIJOS DE VARIABLES LOCALES (CL-3)
+   ───────────────────────────────────────────────────────────────────────
+   Los componentes que definen sus propias variables CSS usan un prefijo
+   para evitar colisiones en el :root global:
+
+   • --cns-*     : console-shell.css (--cns-left-w, --cns-right-w, --cns-handle-w)
+   • --v4-*      : sistema moderno de tokens (colores, tipografía, layout)
+                   definido en 00-variables-theme.css y usado en 02-panel-left,
+                   03-console-center, 04-panel-right, 06-pro-console
+   • --lg-*      : variables legales del sistema antiguo (--lg-shell-header-h,
+                   --lg-sidebar-w, --lg-gutter). Se mantienen para compat
+                   pero la migración debería ir hacia --v4-*.
+
+   Regla: si agregás una variable nueva, usá el prefijo del componente.
+   Ejemplo: si tocás 02-panel-left.css, usá --pl-* o mantené --v4-*.
+   ───────────────────────────────────────────────────────────────────────
+
+/* ============================================================
+   CONVENCIONES DE NOMBRES DE VARIABLES CSS
+   ------------------------------------------------------------
+   CL-3 (audit): documentar acá las convenciones que ya estaban
+   implícitas en el código, para que un dev nuevo sepa qué prefijo
+   usar cuando agregue un componente nuevo.
+
+   Regla general: las custom properties GLOBALES viven en
+   00-variables-theme.css dentro de @layer variables, sin prefijo
+   o con prefijos legacy (--bg, --s, --p, --line...) o
+   modernos (--v4-bg, --v4-panel, --v4-border...).
+
+   Las custom properties LOCALES de un componente se definen
+   en el selector raíz del componente (.cns-shell, .lg-app, etc.)
+   con un prefijo de 3+ letras derivado del nombre del componente.
+
+   Prefijos en uso hoy (auditados 2026-09-01):
+
+     --cns-*   console-shell.css   (paneles laterales de la consola
+                                   con resize: --cns-left-w /
+                                   --cns-right-w / --cns-handle-w)
+     --lg-*    01-main-grid.css    (layout shell: --lg-shell-header-h,
+                                   --lg-sidebar-w). Pisable en media
+                                   queries de responsive.css.
+     --v4-*    00-variables-theme  (alias del sistema legacy. Pendiente
+                                   de deprecar — ver CD-1 del audit.)
+     --ai-*    08-auth-ai-ui.css   (panel de Laia: --ai-panel-w,
+                                   --ai-panel-h)
+
+   Para un componente nuevo, usar --<prefijo>-* con 3+ letras del
+   nombre del archivo. Documentar el prefijo acá cuando se agregue.
+   ============================================================ */

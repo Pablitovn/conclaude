@@ -1,0 +1,309 @@
+@layer header {
+/* ================================================================
+   02-header.css — Cabecera principal redimensionable
+   ================================================================ */
+
+.lg-header {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  min-height: var(--lg-shell-header-h);
+  max-height: var(--lg-shell-header-h);
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 6px var(--gutter);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(6px);
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 96%, transparent));
+  overflow: visible;          /* ← permite ver el handle de resize */
+  /* FIX: acá había un segundo "position: relative;" pisando el sticky de
+     arriba (misma propiedad declarada 2 veces en la regla, gana la última).
+     position:sticky ya funciona como contexto de posicionamiento para el
+     handle absoluto — no hace falta relative. */
+}
+
+/* ── Handle de redimensionamiento ────────────────────────────── */
+.lg-header-resize-handle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 10px;
+  cursor: row-resize;
+  z-index: 85;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.lg-header-resize-handle::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 3px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--line);
+  transition: background 0.15s;
+}
+
+.lg-header-resize-handle:hover::after,
+.lg-header-resize-handle.dragging::after {
+  background: var(--p);
+}
+
+/* ── Marca / Logo ────────────────────────────────────────────── */
+.lg-brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lg-brand-mark {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--p) 50%, var(--line));
+  border-radius: 8px;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--p) 28%, transparent),
+    color-mix(in srgb, var(--p2) 12%, transparent)
+  );
+  font-weight: 900;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.lg-brand {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: .18em;
+  color: var(--text);
+}
+
+.lg-subbrand {
+  margin-top: 1px;
+  font-size: 13px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── Centro ──────────────────────────────────────────────────── */
+.lg-header-center {
+  text-align: center;
+  justify-self: center;
+}
+
+.lg-session-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--s2);
+  font: 600 10px/1 var(--mono);
+  color: var(--text);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ok) 70%, transparent);
+}
+
+.lg-work-state {
+  margin-top: 4px;
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* ── Acciones derecha ────────────────────────────────────────── */
+.lg-header-actions {
+  justify-self: end;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.lg-icon-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--s2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--text);
+  transition: all 0.15s;
+}
+
+.lg-icon-btn:hover {
+  border-color: color-mix(in srgb, var(--p) 55%, var(--line));
+  background: var(--s3);
+}
+
+/* ── Estado general ──────────────────────────────────────────── */
+.lg-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ok) 60%, transparent);
+  display: inline-block;
+}
+/* ════════════════════════════════════════════════════════════════
+   Theme switcher — menú desplegable (armado por 00-theme-manager.js,
+   antes sin ningún CSS asociado: por eso se veía "roto").
+   ════════════════════════════════════════════════════════════════ */
+.theme-switcher-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.theme-switcher-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 200;
+  width: 300px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r2);
+  background: linear-gradient(180deg, var(--s2), var(--s));
+  box-shadow: 0 20px 40px rgba(0, 0, 0, .45);
+}
+.theme-switcher-menu.hidden { display: none; }
+
+.theme-switcher-title {
+  font: 800 11px var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.theme-section-label {
+  font: 700 10px var(--mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 10px 0 6px;
+}
+.theme-section-label:first-of-type { margin-top: 0; }
+
+.theme-grid.studio-theme-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.theme-option-list.utility-theme-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r1);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: border-color .15s, background .15s;
+}
+.theme-option:hover { border-color: var(--a); background: var(--s3); }
+.theme-option.active {
+  border-color: var(--a);
+  background: color-mix(in srgb, var(--a) 12%, var(--s3));
+}
+
+.theme-option-swatch {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border-radius: 6px;
+  border: 1px solid var(--line2);
+}
+.theme-option-copy { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.theme-option-copy strong {
+  font: 700 11px var(--mono);
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.theme-option-copy small {
+  font: 500 9px var(--mono);
+  color: var(--dim);
+}
+
+.theme-divider { height: 1px; background: var(--line); margin: 10px 0; }
+
+.theme-shortcuts { color: var(--dim); }
+.theme-shortcuts small { font: 500 9px var(--mono); }
+
+/* Swatches — un color representativo por tema */
+.theme-neon-studio     { background: linear-gradient(135deg, #e7c270, #6fb2d8); }
+.theme-carbon-forge    { background: linear-gradient(135deg, #d69b58, #3a3f47); }
+.theme-aurora-wave     { background: linear-gradient(135deg, #65d6c8, #b06fe0); }
+.theme-obsidian-gold   { background: linear-gradient(135deg, #d3ab62, #14110c); }
+.theme-violet-circuit  { background: linear-gradient(135deg, #c28ff0, #7ed9ef); }
+.theme-arctic-platinum { background: linear-gradient(135deg, #eef2f5, #b7c2cc); }
+.theme-auto            { background: linear-gradient(135deg, #8bd2e8, #a8b2c0); }
+.theme-dark            { background: #11151c; }
+.theme-light           { background: #f3f5f7; }
+.theme-oled-black      { background: #000000; }
+.theme-high-contrast   { background: repeating-linear-gradient(45deg, #000 0 4px, #fff 4px 8px); }
+
+/* Toast de confirmación al cambiar de tema */
+.theme-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  z-index: 400;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r1);
+  background: var(--s3);
+  color: var(--text);
+  font: 700 12px var(--mono);
+  opacity: 0;
+  transition: opacity .18s, transform .18s;
+  pointer-events: none;
+}
+.theme-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.lg-user-name {
+  max-width: 140px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--v4-text, var(--text));
+  font: 700 10px var(--v4-mono, var(--mono));
+  letter-spacing: .04em;
+}

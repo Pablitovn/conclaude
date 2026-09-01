@@ -1,0 +1,1398 @@
+/* LGMDM V4 — center console: workspace tabs, console grid, meters, transport, etc. */
+@layer workspace-shell {
+  .lg-workspace-workspace-shell {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .lg-workspace-workspace {
+    display: none;
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
+  }
+
+  .lg-workspace-workspace.active {
+    display: block;
+  }
+}
+
+@layer workspace {
+  .console-workspace {
+    padding: 8px;
+    overflow: auto;
+  }
+
+  .lg-console {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--v4-gap);
+  }
+
+  .lg-console-topbar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 9px;
+    border: 1px solid var(--v4-accent);
+    border-radius: 5px;
+    background: #10161d;
+  }
+
+  .lg-console-title {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+  }
+
+  .lg-kicker,
+  .lg-panel-kicker {
+    color: var(--v4-accent);
+    font: 800 12px var(--v4-mono);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  .lg-console-title strong {
+    min-width: 0;
+    color: var(--v4-text);
+    font: 700 10px var(--v4-mono);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .lg-muted {
+    color: var(--v4-muted);
+    font: 500 12px var(--v4-mono);
+  }
+
+  .lg-console-actions {
+    display: flex;
+    gap: 5px;
+    flex: 0 0 auto;
+  }
+
+  .lg-ghost-btn,
+  .lg-primary-btn {
+    min-height: 30px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font: 700 13px var(--v4-mono);
+    transition: all 0.15s;
+  }
+
+  /* Botones de la consola central */
+  .lg-primary-btn {
+    background: var(--v4-accent);
+    color: #0a0d11;
+    border: 1px solid var(--v4-accent);
+    font-weight: 700;
+  }
+  .lg-primary-btn:hover {
+    filter: brightness(1.15);
+  }
+  .lg-primary-btn:active {
+    filter: brightness(0.85);
+  }
+
+  .lg-ghost-btn {
+    background: transparent;
+    border: 1px solid var(--v4-border);
+    color: var(--v4-text-2);
+  }
+  /* .lg-ghost-btn:hover → 02-panel-left.css */
+
+  .lg-mini-btn {
+    background: var(--v4-panel-3);
+    border: 1px solid var(--v4-border);
+    color: var(--v4-text-2);
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font: 700 12px var(--v4-mono);
+    min-height: 24px;
+    transition: all 0.15s;
+  }
+  .lg-mini-btn:hover {
+    border-color: var(--v4-accent);
+    color: var(--v4-text);
+  }
+
+  .lg-workspace-preset-badge {
+    flex: 0 0 auto;
+    padding: 3px 6px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    color: var(--v4-muted);
+    background: #0e141a;
+    font: 800 11px var(--v4-mono);
+    letter-spacing: .1em;
+  }
+
+  .lg-workspace-tab-icon {
+    margin-right: 4px;
+  }
+}
+
+@layer console {
+  .lg-console-main {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(110px, 16%);
+    gap: var(--v4-gap);
+  }
+
+  .lg-wave-panel,
+  .lg-meter-rack,
+  .lg-spectrum-panel,
+  .lg-chain-panel,
+  .lg-control-cluster,
+  .lg-stage-card,
+  .lg-transport-group,
+  .lg-spectrum-row,
+  .lg-chain-control-strip,
+  .lg-console-transport {
+    min-width: 0;
+    border: 1px solid var(--v4-border);
+    border-radius: 5px;
+    background: #0e151d;
+  }
+
+  .lg-wave-panel {
+    padding: 8px;
+  }
+
+  .lg-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .lg-panel-head.compact {
+    margin-bottom: 5px;
+  }
+
+  .lg-panel-head strong {
+    display: block;
+    color: var(--v4-text);
+    font: 700 13px var(--v4-mono);
+  }
+
+  .lg-readouts {
+    display: flex;
+    gap: 8px;
+  }
+
+  .lg-readouts span {
+    display: grid;
+    text-align: right;
+  }
+
+  .lg-readouts b {
+    color: var(--v4-text);
+    font: 800 13px var(--v4-mono);
+  }
+
+  .lg-readouts small {
+    color: var(--v4-dim);
+    font: 700 11px var(--v4-mono);
+  }
+
+  .lg-wave-stage {
+    position: relative;
+    height: clamp(115px, 17vh, 180px);
+    min-height: 96px;
+    overflow: hidden;
+    border: 1px solid var(--v4-border);
+    border-radius: 4px;
+    background: #081017;
+  }
+
+  .lg-wave-stage canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .lg-wave-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
+    background-size: 25px 25px;
+    opacity: .25;
+  }
+
+  .lg-wave-marker {
+    position: absolute;
+    bottom: 3px;
+    color: var(--v4-muted);
+    font: 600 11px var(--v4-mono);
+  }
+
+  .lg-wave-marker-left {
+    left: 4px;
+  }
+  .lg-wave-marker-right {
+    right: 4px;
+  }
+
+  .lg-wave-playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 35%;
+    width: 1px;
+    background: var(--v4-text);
+    box-shadow: 0 0 6px rgba(255, 255, 255, .45);
+    pointer-events: none;
+  }
+
+  .lg-wave-footer {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 5px;
+    color: var(--v4-dim);
+    font: 600 11px var(--v4-mono);
+  }
+
+  .lg-meter-rack {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .lg-meter-head {
+    display: flex;
+    justify-content: space-between;
+    color: var(--v4-muted);
+    font: 800 12px var(--v4-mono);
+  }
+
+  .lg-meter-pair {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 8px;
+    padding: 7px 4px 6px;
+    min-height: 0;
+  }
+
+  .lg-tall-meter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 3px;
+    flex: 0 1 22px;
+    min-height: 0;
+  }
+
+  .lg-meter-track {
+    position: relative;
+    flex: 1 1 auto;
+    width: 8px;
+    min-height: 85px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #18212a;
+    overflow: hidden;
+  }
+
+  .lg-meter-fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0;
+    background: linear-gradient(180deg, var(--v4-red), var(--v4-accent), var(--v4-green));
+    transition: height .06s linear;
+  }
+
+  .lg-tall-meter > span {
+    color: var(--v4-dim);
+    font: 800 11px var(--v4-mono);
+  }
+
+  .lg-meter-numbers {
+    display: grid;
+    gap: 4px;
+    padding-top: 5px;
+    border-top: 1px solid var(--v4-border);
+  }
+
+  .lg-meter-numbers div {
+    display: grid;
+    gap: 2px;
+  }
+
+  .lg-meter-numbers small {
+    color: var(--v4-dim);
+    font: 700 11px var(--v4-mono);
+  }
+
+  .lg-meter-numbers strong {
+    color: var(--v4-text);
+    font: 700 12px var(--v4-mono);
+  }
+
+  .lg-console-controlbar {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .lg-control-cluster {
+    padding: 7px;
+  }
+
+  .lg-control-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+    margin-bottom: 4px;
+    color: var(--v4-muted);
+    font: 800 11px var(--v4-mono);
+  }
+
+  .lg-control-title strong {
+    color: var(--v4-text);
+    font: 800 11px var(--v4-mono);
+  }
+
+  .lg-dual-knob-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .lg-knob-wrap {
+    display: grid;
+    gap: 3px;
+    place-items: center;
+    color: var(--v4-dim);
+    font: 700 10px var(--v4-mono);
+  }
+
+  .lg-console-knob {
+    width: 100%;
+  }
+
+  .lg-ab-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .lg-ab-btn {
+    min-width: 0;
+    min-height: 22px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #111820;
+    color: var(--v4-muted);
+    cursor: pointer;
+    font: 700 11px var(--v4-mono);
+  }
+
+  .lg-ab-btn.active {
+    border-color: var(--v4-accent);
+    background: var(--v4-accent-soft);
+    color: var(--v4-text);
+  }
+
+  .lg-chain-control-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    padding: 5px;
+  }
+
+  .lg-stage-card {
+    display: grid;
+    gap: 2px;
+    padding: 6px;
+    text-align: left;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+  }
+
+  .lg-stage-card:hover {
+    border-color: var(--v4-border);
+  }
+
+  .lg-stage-card b {
+    color: var(--v4-text);
+    font: 800 12px var(--v4-mono);
+  }
+
+  .lg-stage-card span {
+    color: var(--v4-muted);
+    font: 600 11px var(--v4-mono);
+  }
+
+  .lg-stage-card em {
+    color: var(--v4-green);
+    font: 700 10px var(--v4-mono);
+    font-style: normal;
+  }
+
+  .lg-spectrum-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--v4-gap);
+    border: 0;
+    background: transparent;
+  }
+
+  .lg-spectrum-panel,
+  .lg-chain-panel {
+    padding: 8px;
+  }
+
+  .lg-spectrum-panel p {
+    margin: 0 0 6px;
+  }
+
+  .lg-spectrum-stage {
+    position: relative;
+    height: clamp(115px, 17vh, 180px);
+    min-height: 96px;
+    border: 1px solid var(--v4-border);
+    border-radius: 4px;
+    background: #081017;
+    overflow: hidden;
+  }
+
+  .lg-spectrum-stage canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .lg-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--v4-red);
+    font: 800 12px var(--v4-mono);
+    text-transform: uppercase;
+  }
+
+  .lg-live i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--v4-red);
+    box-shadow: 0 0 6px var(--v4-red);
+  }
+
+  .lg-chain {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    overflow: auto;
+    padding-bottom: 2px;
+  }
+
+  .lg-chain-node {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 2px 5px;
+    padding: 5px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #111820;
+    color: var(--v4-text);
+    cursor: pointer;
+  }
+
+  .lg-chain-node b {
+    color: var(--v4-accent);
+    font: 800 11px var(--v4-mono);
+  }
+
+  .lg-chain-node span {
+    font: 800 11px var(--v4-mono);
+  }
+
+  .lg-chain-node em {
+    grid-column: 1 / -1;
+    color: var(--v4-dim);
+    font: 600 10px var(--v4-mono);
+    font-style: normal;
+  }
+
+  .lg-chain-node.active {
+    border-color: var(--v4-accent);
+  }
+
+  .lg-chain-node.output {
+    border-color: var(--v4-cyan);
+  }
+
+  .lg-chain-arrow {
+    color: var(--v4-dim);
+  }
+
+  .lg-console-transport {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 5px;
+  }
+
+  .lg-transport-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: 0;
+    background: transparent;
+  }
+
+  .lg-transport-btn {
+    min-width: 26px;
+    min-height: 24px;
+    padding: 4px 6px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #111820;
+    color: var(--v4-muted);
+    cursor: pointer;
+    font: 800 11px var(--v4-mono);
+  }
+
+  .lg-transport-btn.accent {
+    border-color: var(--v4-accent);
+    color: var(--v4-text);
+  }
+
+  .lg-transport-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--v4-text-2);
+    font: 600 13px var(--v4-mono);
+  }
+  /* .lg-status-dot → 02-header.css */
+
+
+  .lg-transport-hint {
+    color: var(--v4-dim);
+    font: 600 12px var(--v4-mono);
+  }
+
+  .preview-audio {
+    margin-top: 6px;
+  }
+  .preview-audio:empty {
+    display: none;
+  }
+
+  /* Análisis y presets */
+  .analysis-workspace,
+  .presets-workspace {
+    padding: 10px 0;
+  }
+
+  .lg-workspace-preset-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .lg-workspace-preset-head h3 {
+    margin: 0 0 3px;
+    color: var(--v4-text);
+    font: 700 11px var(--v4-mono);
+  }
+
+  .lg-workspace-preset-head p {
+    margin: 0;
+    color: var(--v4-muted);
+    font: 600 13px var(--v4-mono);
+  }
+
+  .lg-workspace-presets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+
+  /* Tabs superiores */
+  .lg-workspace-workspace-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--v4-border);
+    margin-bottom: 8px;
+  }
+
+  .lg-workspace-workspace-tab {
+    padding: 6px 12px;
+    border: 1px solid transparent;
+    border-radius: 4px 4px 0 0;
+    background: transparent;
+    color: var(--v4-muted);
+    font: 700 13px var(--v4-mono);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .lg-workspace-workspace-tab:hover {
+    color: var(--v4-text);
+    border-color: var(--v4-border);
+  }
+
+  .lg-workspace-workspace-tab.active {
+    color: var(--v4-text);
+    border-color: var(--v4-accent);
+    background: var(--v4-accent-soft);
+  }
+}
+
+/* Studio center */
+@layer studio-center {
+  .lg-studio-shell {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(170px, 210px) minmax(0, 1fr) minmax(250px, 300px);
+    gap: var(--v4-gap);
+  }
+
+  .lg-studio-column {
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid var(--v4-accent);
+    border-radius: 5px;
+    background: #0d141b;
+    box-shadow: var(--v4-shadow);
+  }
+
+  .lg-studio-center {
+    min-height: 0;
+    padding: 7px;
+    display: grid;
+    grid-template-rows: auto auto auto minmax(150px, 1fr);
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .studio-heading {
+    margin-bottom: 6px;
+  }
+
+  .studio-center-surface {
+    min-width: 0;
+    padding: 7px;
+    border: 1px solid var(--v4-border);
+    border-radius: 4px;
+    background: #0b1117;
+  }
+
+  .studio-center-kicker {
+    margin-bottom: 5px;
+    color: var(--v4-muted);
+    font: 800 11px var(--v4-mono);
+    letter-spacing: .09em;
+  }
+
+  .studio-chain-flow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: auto;
+  }
+
+  .studio-chain-node {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #111820;
+    color: var(--v4-text);
+    font: 700 11px var(--v4-mono);
+  }
+
+  .studio-chain-index {
+    color: var(--v4-accent);
+  }
+
+  .studio-chain-arrow {
+    color: var(--v4-dim);
+  }
+
+  /* .studio-gr-grid vive en console-shell.css (@layer console-shell,
+     gana por orden de capas) — acá era código muerto duplicado. */
+
+  .studio-gr-card {
+    padding: 5px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+  }
+
+  .studio-gr-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    color: var(--v4-muted);
+    font: 700 11px var(--v4-mono);
+  }
+
+  .studio-gr-top strong {
+    color: var(--v4-text);
+  }
+
+  .studio-gr-track {
+    height: 4px;
+    margin-top: 4px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #202a34;
+  }
+
+  .studio-gr-bar {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--v4-cyan), var(--v4-accent));
+  }
+
+  .studio-gr-note,
+  .studio-telemetry-empty {
+    margin-top: 4px;
+    color: var(--v4-dim);
+    font: 500 11px/1.35 var(--v4-mono);
+  }
+
+  .lg-studio-active .lg-console-controlbar,
+  .lg-studio-active .lg-chain-control-strip {
+    display: none;
+  }
+
+  /* AI chat dentro del studio */
+  .studio-ai-chat {
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    overflow: hidden;
+    margin: 0;
+  }
+
+  .studio-ai-chat .ai-panel-head {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--v4-border);
+  }
+
+  .studio-ai-chat .ai-avatar {
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 20px;
+    border: 1px solid var(--v4-border);
+    border-radius: 50%;
+    background: #111820;
+  }
+
+  .studio-ai-chat .ai-title {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+  }
+
+  .studio-ai-chat .ai-title b {
+    color: var(--v4-text);
+    font: 800 12px var(--v4-mono);
+  }
+
+  .studio-ai-chat .ai-title small {
+    color: var(--v4-dim);
+    font: 600 10px var(--v4-mono);
+  }
+
+  .studio-ai-chat .ai-close {
+    margin-left: auto;
+  }
+
+  .studio-ai-chat .ai-messages {
+    min-height: 0;
+    overflow: auto;
+    padding: 6px 2px;
+    display: grid;
+    align-content: start;
+    gap: 5px;
+  }
+
+  .studio-ai-chat .ai-msg,
+  .studio-ai-chat .ai-suggestion-card {
+    padding: 5px 6px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #10171f;
+    color: var(--v4-text-2);
+    font: 500 11px/1.4 var(--v4-mono);
+  }
+
+  .studio-ai-chat .ai-msg.user {
+    border-color: rgba(239, 155, 66, .25);
+    color: var(--v4-text);
+  }
+
+  .studio-ai-chat .ai-msg.assistant {
+    border-color: rgba(105, 194, 232, .2);
+  }
+
+  .studio-ai-chat .ai-suggestions {
+    display: flex;
+    gap: 4px;
+    overflow: auto;
+    padding: 2px 0 5px;
+  }
+
+  .studio-ai-chat .ai-suggestions button {
+    flex: 0 0 auto;
+    min-height: 22px;
+    padding: 3px 5px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #111820;
+    color: var(--v4-muted);
+    font: 700 10px var(--v4-mono);
+  }
+
+  .studio-ai-chat .ai-inputrow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 28px;
+    gap: 4px;
+  }
+
+  .studio-ai-chat .ai-inputrow textarea {
+    min-width: 0;
+    min-height: 28px;
+    max-height: 96px;
+    resize: none;
+    padding: 5px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #0a1016;
+    color: var(--v4-text);
+    outline: none;
+    font: 600 11px/1.35 var(--v4-mono);
+  }
+
+  .studio-ai-chat .ai-send-btn,
+  .studio-ai-chat .ai-close {
+    min-width: 26px;
+    min-height: 24px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #111820;
+    color: var(--v4-muted);
+    cursor: pointer;
+  }
+
+  .studio-ai-chat .ai-send-btn:hover,
+  .studio-ai-chat .ai-close:hover {
+    border-color: var(--v4-accent);
+    color: var(--v4-text);
+  }
+
+  .studio-ai-chat .ai-panel-foot {
+    padding-top: 4px;
+    color: var(--v4-dim);
+    font: 500 10px/1.3 var(--v4-mono);
+  }
+
+  .ai-fab {
+    display: none !important;
+  }
+
+  .ai-fab-dot {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--v4-accent);
+    box-shadow: 0 0 6px var(--v4-accent);
+    pointer-events: none;
+  }
+}
+
+/* Dashboard y health */
+@layer console-center-group-b {
+  .dashboard-wrap {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid var(--v4-border);
+    border-radius: 6px;
+    background: var(--v4-panel-2);
+  }
+
+  .dashboard-wrap h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 8px;
+    color: var(--v4-text-2);
+    font: 700 13px var(--v4-mono);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  .dash-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--v4-green);
+    box-shadow: 0 0 6px var(--v4-green);
+    display: inline-block;
+  }
+
+  .dash-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .dash-card {
+    padding: 8px;
+    border: 1px solid var(--v4-border);
+    border-radius: 5px;
+    background: var(--v4-panel-3);
+  }
+
+  .dash-label {
+    color: var(--v4-dim);
+    font: 700 11px var(--v4-mono);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 3px;
+  }
+
+  .dash-value {
+    color: var(--v4-text);
+    font: 800 13px var(--v4-mono);
+  }
+
+  .dash-value--eta {
+    font-size: 10px;
+  }
+
+  .dash-bar-track {
+    margin-top: 5px;
+    height: 4px;
+    border-radius: 2px;
+    background: #18212a;
+    overflow: hidden;
+  }
+
+  .dash-bar-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--v4-green), var(--v4-accent));
+    transition: width .15s linear;
+  }
+
+  .dash-queue-row {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: var(--v4-muted);
+    font: 600 12px var(--v4-mono);
+  }
+
+  .dash-metrics-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    color: var(--v4-muted);
+    font: 600 12px var(--v4-mono);
+  }
+
+  .freqbands-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .freqband-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .freqband-label {
+    flex: 0 0 90px;
+    color: var(--v4-dim);
+    font: 600 11px var(--v4-mono);
+    text-transform: uppercase;
+  }
+
+  .freqband-track {
+    flex: 1 1 auto;
+    height: 6px;
+    border-radius: 3px;
+    background: #18212a;
+    border: 1px solid var(--v4-border);
+    overflow: hidden;
+  }
+
+  .freqband-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--v4-cyan), var(--v4-accent));
+    transition: width .1s linear;
+  }
+
+  .freqband-val {
+    flex: 0 0 34px;
+    text-align: right;
+    color: var(--v4-text);
+    font: 700 12px var(--v4-mono);
+  }
+
+  .lg-health-panel {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid var(--v4-border);
+    border-radius: 6px;
+    background: var(--v4-panel-2);
+  }
+
+  .lg-health-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: var(--v4-text-2);
+    font: 700 13px var(--v4-mono);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  .lg-health-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .lg-health-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+  }
+
+  .lg-health-item b {
+    display: block;
+    color: var(--v4-text);
+    font: 700 13px var(--v4-mono);
+  }
+
+  .lg-health-item small {
+    color: var(--v4-dim);
+    font: 600 12px var(--v4-mono);
+  }
+
+  .lg-health-dot {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--v4-muted);
+    box-shadow: 0 0 6px transparent;
+  }
+
+  .health-card {
+    padding: 6px 8px;
+    border: 1px solid var(--v4-border);
+    border-radius: 5px;
+    background: var(--v4-panel-3);
+  }
+
+  /* health-label aquí es dim/metadata → scope al contexto del análisis */
+  .lg-health-item .health-label, .lg-health-panel .health-label  {
+    display: block;
+    color: var(--v4-dim);
+    font: 700 11px var(--v4-mono);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .meters-wrap {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--v4-border);
+    border-radius: 5px;
+    background: #0e151d;
+  }
+
+  .meters-toggle {
+    cursor: pointer;
+    color: var(--v4-muted);
+    font: 700 12px var(--v4-mono);
+    text-decoration: underline;
+  }
+
+  .meter-fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0;
+    background: linear-gradient(180deg, var(--v4-red), var(--v4-accent), var(--v4-green));
+    transition: height .06s linear;
+  }
+
+  .meter-track {
+    position: relative;
+    flex: 1 1 auto;
+    width: 8px;
+    min-height: 85px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #18212a;
+    overflow: hidden;
+  }
+
+  .meter-col {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    flex: 0 1 22px;
+    min-height: 0;
+  }
+
+  .meter-name {
+    color: var(--v4-dim);
+    font: 700 11px var(--v4-mono);
+  }
+
+  .meter-readout {
+    color: var(--v4-text);
+    font: 700 12px var(--v4-mono);
+  }
+
+  .stereo-meter-track {
+    position: relative;
+    height: 10px;
+    border: 1px solid var(--v4-border);
+    border-radius: 3px;
+    background: #18212a;
+    overflow: hidden;
+  }
+
+  .stereo-meter-fill {
+    position: absolute;
+    inset: 1px auto 1px 50%;
+    width: 0;
+    background: var(--v4-cyan);
+    transition: width .06s linear;
+  }
+
+  .stereo-meter-center {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: rgba(255, 255, 255, .2);
+    pointer-events: none;
+  }
+
+  .cns-agent-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 6px;
+  }
+
+  /* Health strip (barra superior de estado) */
+  /* ── Health strip compacto — status bar de ~28px ── */
+  .lg-health-strip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    margin-bottom: 6px;
+    border: 1px solid var(--v4-border, var(--line));
+    border-radius: 6px;
+    background: var(--v4-panel, var(--s));
+    min-height: 28px;
+    flex-wrap: wrap;
+  }
+
+  .lg-hs-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .lg-hs-label {
+    color: var(--v4-dim, var(--dim));
+    font: 700 7px var(--v4-mono, var(--mono));
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .lg-hs-value {
+    color: var(--v4-text, var(--text));
+    font: 700 9px var(--v4-mono, var(--mono));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  .lg-hs-sub {
+    color: var(--v4-muted, var(--muted));
+    font: 500 7px var(--v4-mono, var(--mono));
+  }
+
+  .lg-hs-sep {
+    color: var(--v4-dim, var(--dim));
+    font: 400 9px var(--v4-mono, var(--mono));
+    user-select: none;
+  }
+
+  /* .health-card — mantener por compatibilidad con otras zonas que lo usen */
+  .health-card {
+    display: none; /* ya no se usa en el strip compacto */
+  }
+}
+
+/* ── Fusionado desde 04-console-center.css (estaba sin <link>, así que
+   estas reglas no se estaban aplicando: #consoleTrackTitle, los botones
+   Analizar/Master y la cabecera del master-bus rendían sin estilo). Se
+   descartaron de acá las reglas de .studio-grid/.meter-grid/.module-item
+   y compañía: no matchean ningún elemento del HTML actual, eran de una
+   versión anterior del layout de la consola. ── */
+@layer console-master {
+  #lgMasterConsole.lg-console { min-width: 0; display: grid; gap: 11px; }
+  #lgMasterConsole > * { min-width: 0; }
+  #lgMasterConsole .console-master-bus,
+  #lgMasterConsole .master-bus {
+    padding: 12px 14px;
+    border: 1px solid color-mix(in srgb, var(--p2) 28%, var(--line));
+    border-radius: 14px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--s2) 94%, transparent), color-mix(in srgb, var(--bg) 94%, transparent));
+  }
+  #lgMasterConsole .console-title-row,
+  #lgMasterConsole .console-toolbar-row,
+  #lgMasterConsole .master-bus-header {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  }
+  #consoleTrackTitle { font-size: 14px; font-weight: 900; }
+  #consoleTrackMeta, #consoleStatus { color: var(--muted); font-size: 10px; }
+  #consoleAnalyzeBtn, #consoleMasterBtn, #consoleAnalyzeSmall, #consoleMasterSmall {
+    min-height: 32px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--s3); font-size: 13px; font-weight: 900;
+  }
+}
+@layer console-center-group-b {
+  /* lg-studio-head → oculto; título queda como .sr-only para accesibilidad */
+  .lg-studio-head { display: none; }
+
+  /* quick-actions en el tab bar */
+  .lg-workspace-tab-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    padding-left: 8px;
+  }
+  .quick-action--tab {
+    min-height: 26px;
+    padding: 4px 9px;
+    font-size: 9px;
+  }
+
+  /* Envoltorio de la superficie de trabajo (tabs + consola de 3 paneles) */
+  .lg-workspace-surface { display: block; min-width: 0; min-height: 0; }
+
+  /* Slider horizontal de la barra de control del master (mismo ancho que el knob) */
+  .lg-console-slider { width: 100%; accent-color: var(--v4-accent); }
+
+  /* Estado de análisis (tab Analysis) */
+  .analysis-status { margin-top: 8px; color: var(--v4-muted); font: 600 9px var(--v4-mono); }
+  .analysis-status:empty { display: none; }
+}
+
+/* Resize vertical de dashboard/meters/health (panel-resize-handle-bottom
+   reusable). Por defecto max-height queda en "none" — nada cambia hasta
+   que el user arrastra el handle; recién ahí se fija una altura y aparece
+   scroll interno, para no achicar estos paneles de entrada sin que nadie
+   lo haya pedido. */
+@layer console-center-group-b {
+  .lg-health-panel,
+  .dashboard-wrap,
+  .meters-wrap {
+    position: relative;
+    max-height: var(--panel-resize-h, none);
+    overflow-y: auto;
+  }
+
+  .panel-resize-handle-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 10px;
+    cursor: row-resize;
+    z-index: 5;
+    touch-action: none;
+  }
+  .panel-resize-handle-bottom::after {
+    content: '';
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    top: 3px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--v4-border);
+    transition: background .15s;
+  }
+  .panel-resize-handle-bottom:hover::after,
+  .panel-resize-handle-bottom.dragging::after {
+    background: var(--v4-accent);
+  }
+}

@@ -1,0 +1,273 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN - Unificado (reemplaza 06-responsive.css y 09-responsive.css)
+   ═══════════════════════════════════════════════════════════════════════════ */
+@layer responsive {
+  /* --- Breakpoints generales --- */
+  @media (max-width: 1180px) {
+    :root {
+      --lg-sidebar-w: clamp(250px, 27vw, 320px);
+    }
+    .lg-studio-shell {
+      grid-template-columns: minmax(150px, 190px) minmax(0, 1fr) minmax(220px, 260px);
+    }
+    .lg-console-controlbar {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .ab-cluster {
+      grid-column: span 3;
+    }
+    .cns-shell {
+      --cns-left-w: 220px;
+      --cns-right-w: 240px;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .cns-body {
+      grid-template-columns: 1fr;
+    }
+    #cnsPanelLeft,
+    #cnsHandleLeft,
+    #cnsConsoleWrap,
+    #cnsHandleRight,
+    #cnsPanelRight {
+      grid-column: auto;
+    }
+    .cns-panel-left,
+    .cns-panel-right {
+      max-height: none;
+      order: 2;
+    }
+    .cns-console-wrap {
+      order: 1;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .lg-app {
+      height: auto;
+      min-height: 100dvh;
+      overflow: visible;
+    }
+    .lg-header {
+      grid-template-columns: minmax(0, 1fr) auto;
+      padding: 0 7px;
+    }
+    .lg-header-center {
+      display: none;
+    }
+    .lg-app-body {
+      grid-template-columns: minmax(0, 1fr);
+      min-height: calc(100dvh - var(--lg-shell-header-h));
+      overflow: visible;
+    }
+    .lg-sidebar {
+      max-height: none;
+      border-right: 0;
+      border-bottom: 1px solid var(--v4-accent);
+      width: 100% !important;
+      padding: 8px !important;
+    }
+    .lg-app-body.sidebar-collapsed .lg-sidebar {
+      width: 100% !important;
+      padding: 8px !important;
+      border-bottom: 1px solid var(--v4-accent);
+      overflow: auto;
+    }
+    .lg-main-stack {
+      padding: 8px;
+    }
+    .sidebarResizeHandle {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar-tabs {
+      padding: 8px;
+      gap: 2px;
+    }
+    .sidebar-tab {
+      min-width: auto;
+      padding: 6px 8px;
+      font-size: 11px;
+      flex: 1 1 45%;
+    }
+    .sidebar-pane {
+      max-height: calc(100vh - 250px);
+    }
+    .preset-grid {
+      grid-template-columns: 1fr;
+    }
+    .ab-controls {
+      grid-template-columns: 1fr;
+    }
+    .viz-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    :root {
+      --v4-gap: 6px;
+    }
+    .lg-header {
+      padding: 0 7px;
+    }
+    .lg-brand {
+      font-size: 11px;
+    }
+    .lg-subbrand {
+      display: none;
+    }
+    .lg-workspace-workspace-tabs {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .lg-workspace-workspace-tab {
+      font-size: 12px;
+    }
+    .lg-console {
+      gap: 6px;
+    }
+    .lg-console-topbar {
+      align-items: flex-start;
+    }
+    .lg-console-actions {
+      width: 100%;
+    }
+    .lg-console-actions > * {
+      flex: 1 1 0;
+    }
+    .lg-console-controlbar {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .ab-cluster {
+      grid-column: auto;
+    }
+    .lg-chain-control-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .studio-gr-grid {
+      grid-template-columns: 1fr;
+    }
+    .eq4-wrap {
+      grid-template-columns: 1fr;
+    }
+    .meters-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .sidebar-tabs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .button-row {
+      grid-template-columns: 1fr;
+    }
+    .cns-console {
+      grid-template-columns: 64px minmax(0, 1fr);
+    }
+    .cns-zone-lower {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .sidebar-tabs {
+      flex-wrap: wrap;
+    }
+    .panel-block {
+      padding: 10px;
+      gap: 6px;
+    }
+  }
+
+  /* --- Altura reducida (landscape móvil) --- */
+  @media (max-height: 620px) and (min-width: 901px) {
+    :root {
+      --lg-shell-header-h: 46px;
+    }
+    .lg-sidebar {
+      padding: 6px;
+    }
+    .console-workspace {
+      padding: 6px;
+    }
+    .lg-wave-stage {
+      height: clamp(92px, 17vh, 135px);
+      min-height: 84px;
+    }
+    .lg-studio-left,
+    .lg-studio-right {
+      height: auto;
+      max-height: 280px;
+    }
+  }
+
+  @media (max-height: 500px) and (orientation: landscape) {
+    .app-header {
+      padding: 4px 8px;
+    }
+    .sidebar {
+      max-height: 120px;
+    }
+    .visualization-panel {
+      height: 120px;
+    }
+    canvas {
+      height: 100px;
+    }
+    .content-section {
+      padding: 4px;
+    }
+    .process-card {
+      padding: 4px;
+    }
+  }
+
+  /* --- Preferencias de reducción de movimiento --- */
+  /* C-P4 (audit): limpieza de duplicados. La regla
+     animation-iteration-count: 1 ya estaba en la declaración previa,
+     así que aquí se aplica una sola vez. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
+
+@layer accessibility {
+  .sidebar-tab:focus-visible,
+  .studio-plugin-header:focus-visible,
+  .studio-band-tab:focus-visible,
+  .lg-workspace-workspace-tab:focus-visible,
+  .lg-icon-btn:focus-visible {
+    outline: 2px solid var(--v4-accent);
+    outline-offset: 2px;
+  }
+
+  @media (pointer: coarse) {
+    button,
+    summary,
+    input[type="range"] {
+      min-height: 28px;
+    }
+    .studio-band-tab {
+      min-height: 30px;
+    }
+  }
+
+  /* ── Utilidades responsive show/hide ── */
+  @media (max-width: 599px) {
+    .hide-mobile { display: none !important; }
+    .show-mobile { display: block !important; }
+  }
+  @media (min-width: 600px) {
+    .show-mobile { display: none !important; }
+    .hide-mobile { display: block !important; }
+  }
+}
+

@@ -1,0 +1,426 @@
+@layer console-shell {
+/* ============================================================
+   console-shell.css — Nuevo layout de la consola (reemplaza el
+   viejo .lg-studio-shell de 3 columnas fijas + .lg-console-main).
+   ------------------------------------------------------------
+   No define paleta propia: reusa el sistema de tokens de :root
+   (lgmdm.css) para integrarse con el theme switcher. --left-w/
+   --right-w son locales a este componente (namespaced --cns-*)
+   para no chocar con --lg-sidebar-w de 32-flex-layout.js.
+   ============================================================ */
+
+.cns-shell {
+  --cns-left-w: 260px;
+  --cns-right-w: 280px;
+  --cns-left-min: 200px;
+  --cns-left-max: 420px;
+  --cns-right-min: 220px;
+  --cns-right-max: 420px;
+  --cns-handle-w: 6px;
+  margin: 12px 0 0;
+}
+
+.cns-body {
+  display: grid;
+  grid-template-columns: var(--cns-left-w) var(--cns-handle-w) minmax(0, 1fr) var(--cns-handle-w) var(--cns-right-w);
+  min-height: 0;
+  gap: 0;
+}
+
+/* FIX: los handles (#cnsHandleLeft/#cnsHandleRight) son display:none por
+   defecto y nunca se muestran. Un elemento display:none queda fuera del
+   auto-placement del grid, así que el navegador reordenaba los 3
+   elementos visibles (panel-izq, consola, panel-der) en las primeras 3
+   columnas en vez de las 5 reales — la consola caía en una columna de
+   6px pensada para el handle, y el panel derecho se comía el ancho que
+   era de la consola. Fijar grid-column explícito saca esa dependencia
+   del orden/visibilidad de los handles. */
+#cnsPanelLeft {
+  grid-column: 1;
+}
+#cnsHandleLeft {
+  grid-column: 2;
+}
+#cnsConsoleWrap {
+  grid-column: 3;
+}
+#cnsHandleRight {
+  grid-column: 4;
+}
+#cnsPanelRight {
+  grid-column: 5;
+}
+
+@media (max-width: 1200px) {
+  .cns-shell {
+    --cns-left-w: 220px;
+    --cns-right-w: 240px;
+  }
+}
+
+.cns-handle {
+  display: block;
+  cursor: col-resize;
+  position: relative;
+  touch-action: none;
+  background: linear-gradient(90deg, transparent 35%, var(--v4-border, var(--line)) 50%, transparent 65%);
+  transition: background .15s;
+}
+.cns-handle:hover,
+.cns-handle.dragging {
+  background: linear-gradient(90deg, transparent 30%, var(--v4-accent, var(--p)) 50%, transparent 70%);
+}
+.cns-handle-h {
+  cursor: row-resize;
+}
+.cns-handle-inline {
+  align-self: stretch;
+}
+
+.cns-console {
+  min-height: 0;
+  min-width: 0;
+  --cns-vu-w: 90px;
+  --cns-wave-h: 250px;
+  --cns-ana-h: 150px;
+  display: grid;
+  grid-template-columns: var(--cns-vu-w) var(--cns-handle-w) minmax(0, 1fr);
+  grid-template-rows: var(--cns-wave-h) var(--cns-handle-w) var(--cns-ana-h) var(--cns-handle-w) minmax(120px, 1fr);
+  gap: 10px;
+}
+
+.cns-zone-vu { grid-column: 1; grid-row: 1 / 6; }
+#cnsVHandle { grid-column: 2; grid-row: 1 / 6; cursor: col-resize; }
+.cns-zone-wave { grid-column: 3; grid-row: 1; }
+#cnsHHandleWave { grid-column: 3; grid-row: 2; cursor: row-resize; }
+.cns-zone-ana { grid-column: 3; grid-row: 3; }
+#cnsHHandleAna { grid-column: 3; grid-row: 4; cursor: row-resize; }
+
+/* #cnsConsoleWrap: slot del medio de .cns-body. Antes ese slot lo ocupaba
+   #cnsConsole directamente; ahora envuelve #lgmdmWorkspaceShell (tabs +
+   las 3 pestañas Console/Analysis/Presets) para que el panel de plugins
+   (#cnsPanelLeft) y el rack activo (#cnsPanelRight) queden fijos en los
+   costados sin importar qué pestaña esté activa, en vez de desaparecer
+   cuando se cambia de pestaña. */
+.cns-console-wrap {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 960px) {
+  .cns-body {
+    grid-template-columns: 1fr;
+  }
+  #cnsPanelLeft,
+  #cnsHandleLeft,
+  #cnsConsoleWrap,
+  #cnsHandleRight,
+  #cnsPanelRight {
+    grid-column: auto;
+  }
+  .cns-panel-left,
+  .cns-panel-right {
+    max-height: none;
+    order: 2;
+  }
+  .cns-console-wrap {
+    order: 1;
+  }
+}
+
+/* ── resize handles ────────────────────────────────────────── */
+.cns-handle::after {
+  content: '';
+  position: absolute;
+  top: 8%;
+  bottom: 8%;
+  left: 2px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.cns-handle-h::after {
+  top: 2px;
+  bottom: auto;
+  left: 8%;
+  right: 8%;
+  width: auto;
+  height: 2px;
+}
+
+.cns-handle:hover::after,
+.cns-handle.dragging::after {
+  background: var(--a);
+}
+
+/* ── side panels (izq: plugins disponibles / der: rack) ─────── */
+.cns-panel {
+  min-width: 0;
+  min-height: 0;
+  background: linear-gradient(180deg, var(--s2), var(--s));
+  border: 1px solid var(--line);
+  border-radius: var(--r2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 760px;
+}
+
+.cns-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  min-height: 0;
+}
+
+.cns-block-grow {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.cns-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.cns-panel-title {
+  font: 800 11px var(--mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── consola central: grid propio, cada zona resuelve su contenido ── */
+.cns-zone-lower {
+  grid-column: 3;
+  grid-row: 5;
+  min-height: 0;
+  --cns-gr-w: 420px;
+  display: grid;
+  grid-template-columns: var(--cns-gr-w) var(--cns-handle-w) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.cns-zone-lower #studioGrPanel { grid-column: 1; }
+.cns-zone-lower #cnsHandleGr { grid-column: 2; cursor: col-resize; }
+.cns-zone-lower .cns-agent-zone { grid-column: 3; }
+
+.cns-zone-lower:has(#studioGrPanel[hidden]) {
+  grid-template-columns: 1fr;
+}
+.cns-zone-lower:has(#studioGrPanel[hidden]) #cnsHandleGr {
+  display: none;
+}
+.cns-zone-lower:has(#studioGrPanel[hidden]) .cns-agent-zone {
+  grid-column: 1;
+}
+
+@media (max-width: 760px) {
+  .cns-console {
+    --cns-vu-w: 64px;
+  }
+  .cns-zone-lower {
+    grid-template-columns: 1fr !important;
+  }
+  .cns-zone-lower #cnsHandleGr {
+    display: none;
+  }
+  .cns-zone-lower #studioGrPanel,
+  .cns-zone-lower .cns-agent-zone {
+    grid-column: 1;
+  }
+}
+
+.cns-vu-rack {
+  height: 100%;
+}
+
+.cns-lufs-readout {
+  margin-top: 8px;
+  text-align: center;
+  font: 800 11px var(--mono);
+  color: var(--text);
+}
+
+.cns-lufs-readout small {
+  display: block;
+  color: var(--dim);
+  font-size: 10px;
+  letter-spacing: .1em;
+}
+
+.cns-card {
+  border: 1px solid var(--line);
+  border-radius: var(--r2);
+  background: linear-gradient(180deg, var(--s2), var(--s));
+  padding: 10px 12px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cns-card[hidden] {
+  display: none;
+}
+
+.cns-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.cns-card-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+}
+
+.cns-zone-wave,
+.cns-zone-ana,
+.cns-zone-wave .cns-card,
+.cns-zone-ana .cns-card {
+  height: 100%;
+  min-height: 0;
+}
+
+.cns-zone-wave .lg-wave-stage {
+  height: 100%;
+  min-height: 90px;
+}
+
+.cns-analyzer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.cns-analyzer-body .text-muted-body {
+  margin: 0;
+}
+
+.cns-agent-zone .cns-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cns-agent-msg {
+  flex: 1 1 auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r1);
+  background: var(--bg);
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--muted);
+  overflow-y: auto;
+}
+
+.cns-agent-input-row {
+  display: flex;
+  gap: 6px;
+}
+
+.cns-agent-input-row input {
+  flex: 1 1 auto;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r1);
+  color: var(--text);
+  padding: 7px 9px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.cns-agent-input-row button {
+  border: 1px solid var(--line);
+  background: var(--s3);
+  color: var(--text);
+  border-radius: var(--r1);
+  padding: 7px 12px;
+  font: 700 10px var(--mono);
+  cursor: pointer;
+}
+
+.cns-agent-input-row button:hover {
+  border-color: var(--a);
+  color: var(--a);
+}
+
+/* ── Fusionado desde 06-mixer.css ── */
+.range-pair, .fader-row, .slider-row, .control-strip { display: grid; grid-template-columns: 1fr 84px; gap: 8px; align-items: center; }
+.studio-gr-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.studio-gr-card {
+  display: grid;
+  grid-template-columns: 40px 56px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+}
+.studio-gr-top {
+  display: contents;
+}
+.studio-gr-top span {
+  font: 700 10px var(--mono);
+  letter-spacing: .06em;
+  color: var(--dim);
+}
+.studio-gr-top strong {
+  font: 700 12px var(--mono);
+  color: var(--text);
+  text-align: right;
+}
+.studio-gr-track {
+  position: relative;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+[id^="studioGrBar_"] {
+  position: absolute;
+  inset: 0;
+  margin-top: 0;
+  height: 100%;
+  border-radius: 0;
+  background: linear-gradient(90deg, var(--p), var(--a));
+  width: 4%;
+}
+
+/* ── Fusionado desde 07-visualizers.css ── */
+#lgmdmWaveformCanvas, #waveformCanvas, canvas { max-width: 100%; }
+.waveform-wrap, .analyzer-wrap, #waveformWrap, .spectrum-wrap { min-height: 170px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: #080b14; overflow: hidden; }
+.waveform-wrap canvas, .analyzer-wrap canvas, #lgmdmWaveformCanvas, #waveformCanvas { width: 100%; height: 100%; min-height: 150px; display: block; }
+.meter-bar, .level-bar, .progress-bar { position: relative; height: 8px; overflow: hidden; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); }
+.meter-bar > *, .level-bar > *, .progress-bar > * { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--p), var(--p2), var(--a)); }
+}
+
+/* ── Sidebar viejo (workflowSidebar) desactivado: sus botones vivos
+   se reubicaron en la barra MASTER BUS de la consola. JS de
+   32-flex-layout.js sigue seteando grid-template-columns por inline
+   style con el ancho del sidebar aunque esté hidden (un item
+   display:none no consume su track, pero el track sigue reservado),
+   dejando una franja en blanco a la izquierda. Se fuerza una sola
+   columna con !important, que le gana al inline style sin !important. */
+#appBody:has(#workflowSidebar[hidden]) {
+  grid-template-columns: minmax(0, 1fr) !important;
+}

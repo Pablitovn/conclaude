@@ -1,0 +1,230 @@
+@layer variables {
+/* ================================================================
+   00-variables-theme.css — Variables y temas base
+   ================================================================ */
+
+:root {
+  /* ── Esquema de color base (dark) ───────────────────────────── */
+  color-scheme: dark;
+
+  /* Colores principales (sin prefijo, compatibilidad con código legacy) */
+  --bg: #070812;
+  --bg2: #0b0e18;
+  --s: #0e1220;
+  --s2: #12182a;
+  --s3: #171d30;
+  --s4: #1b2339;
+  --text: #edf2ff;
+  --muted: #a8b2c0;        /* mejorado para legibilidad */
+  --dim: #6e7a8a;          /* mejorado para legibilidad */
+  --line: rgba(148, 163, 184, .18);
+  --line2: rgba(148, 163, 184, .28);
+  --p: #8bd2e8;
+  --p2: #8e81c8;
+  --a: #e7c270;
+  --ok: #57d26f;
+  --warn: #ffba5a;
+  --danger: #ff6b6b;
+  --gutter: 18px;
+  --r2: 10px;
+  --r3: 14px;
+  --r1: 7px;
+  --focus: 0 0 0 2px color-mix(in srgb, var(--a) 55%, transparent);
+  --sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --mono: ui-monospace, SFMono-Regular, "Roboto Mono", "Noto Mono", monospace;
+
+  /* ── Variables V4 (usadas en los archivos CSS modernos) ──────── */
+  --v4-bg: var(--bg);
+  --v4-bg-2: var(--bg2);
+  --v4-panel: var(--s);
+  --v4-panel-2: var(--s2);
+  --v4-panel-3: var(--s3);
+  --v4-surface: var(--s4);
+  --v4-border: var(--line);
+  --v4-border-strong: var(--line2);
+
+  /* Colores de acento (fijos, con buen contraste) */
+  --v4-accent: #ef9b42;            /* naranja cálido */
+  --v4-accent-soft: rgba(239, 155, 66, .16);
+  --v4-cyan: #6fb2d8;              /* azul claro */
+  --v4-green: var(--ok);
+  --v4-red: var(--danger);
+  --v4-yellow: var(--warn);
+
+  /* Textos (contraste mejorado) */
+  --v4-text: var(--text);
+  --v4-text-2: #d0d6e0;            /* más claro que --muted */
+  --v4-muted: var(--muted);
+  --v4-dim: var(--dim);
+
+  /* Medidas y fuentes */
+  --v4-gap: clamp(7px, .7vw, 10px);
+  --v4-radius: 7px;
+  --v4-radius-sm: 5px;
+  --v4-shadow: 0 14px 30px rgba(0, 0, 0, .28);
+  --v4-font: var(--sans);
+  --v4-mono: var(--mono);
+
+  /* Variables de layout (shell) — definidas aquí por seguridad */
+  --lg-shell-header-h: clamp(46px, 4.6vh, 58px);
+  --lg-sidebar-w: clamp(290px, 22vw, 360px);
+  --lg-content-pad-x: clamp(8px, .8vw, 14px);
+  --lg-content-pad-y: clamp(7px, .8vh, 12px);
+}
+
+/* ── Temas adicionales (sobrescriben las variables base) ────── */
+
+html[data-theme="neon-studio"],
+html.theme-neon-studio {
+  --p: #69e7ff;
+  --p2: #c66cff;
+  --a: #ffd268;
+  --v4-accent: #ef9b42;      /* mantenemos el naranja para consistencia */
+  --v4-cyan: #69e7ff;
+}
+
+html[data-theme="carbon-forge"],
+html.theme-carbon-forge {
+  --p: #86b5c8;
+  --p2: #68758e;
+  --a: #d7aa64;
+  --v4-accent: #d69b58;
+  --v4-cyan: #7ea8bd;
+}
+
+html[data-theme="aurora-wave"],
+html.theme-aurora-wave {
+  --p: #54e3da;
+  --p2: #db5ac8;
+  --a: #f3ca74;
+  --v4-accent: #e79b68;
+  --v4-cyan: #65d6c8;
+}
+
+html[data-theme="obsidian-gold"],
+html.theme-obsidian-gold {
+  --p: #d2ad6d;
+  --p2: #8b6a35;
+  --a: #f2d084;
+  --v4-accent: #d3ab62;
+  --v4-cyan: #a5bbc9;
+}
+
+html[data-theme="violet-circuit"],
+html.theme-violet-circuit {
+  --p: #9b8cff;
+  --p2: #ff64ca;
+  --a: #8df5ff;
+  --v4-accent: #c28ff0;
+  --v4-cyan: #7ed9ef;
+}
+
+html[data-theme="arctic-platinum"],
+html.theme-arctic-platinum {
+  color-scheme: light;
+  --bg: #e9eef4;
+  --bg2: #f3f6f9;
+  --s: #ffffff;
+  --s2: #f8fafc;
+  --s3: #eef2f7;
+  --s4: #e5ebf2;
+  --text: #182230;
+  --muted: #667287;
+  --dim: #8793a4;
+  --v4-text: #182230;
+  --v4-text-2: #2a3a4a;
+  --v4-muted: #667287;
+  --v4-dim: #8793a4;
+  --v4-accent: #d48c3c;      /* naranja más sobrio para fondo claro */
+  --v4-accent-soft: rgba(212, 140, 60, .12);
+  --v4-border: rgba(0, 0, 0, .10);
+  --v4-border-strong: rgba(0, 0, 0, .20);
+  --v4-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+}
+
+html[data-theme="dark"],
+html.theme-dark {
+  --p: #8bd2e8;
+  --p2: #8e81c8;
+  --a: #e7c270;
+  --v4-accent: #ef9b42;
+}
+
+html[data-theme="light"],
+html.theme-light {
+  color-scheme: light;
+  --bg: #f4f6f8;
+  --bg2: #e9edf2;
+  --s: #ffffff;
+  --s2: #f9fafb;
+  --s3: #eef2f6;
+  --s4: #e4e8ee;
+  --text: #17212d;
+  --muted: #647084;
+  --dim: #8d98a8;
+  --v4-text: #17212d;
+  --v4-text-2: #2a3a4a;
+  --v4-muted: #647084;
+  --v4-dim: #8d98a8;
+  --v4-accent: #d48c3c;
+  --v4-accent-soft: rgba(212, 140, 60, .12);
+  --v4-border: rgba(0, 0, 0, .10);
+  --v4-border-strong: rgba(0, 0, 0, .20);
+  --v4-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+}
+
+html[data-theme="oled-black"],
+html.theme-oled-black {
+  --bg: #000000;
+  --bg2: #000000;
+  --s: #050505;
+  --s2: #090909;
+  --s3: #0d0d0d;
+  --s4: #141414;
+  --line: rgba(255, 255, 255, .14);
+  --line2: rgba(255, 255, 255, .28);
+  --v4-bg: #000000;
+  --v4-bg-2: #000000;
+  --v4-panel: #050505;
+  --v4-panel-2: #090909;
+  --v4-panel-3: #0d0d0d;
+  --v4-border: rgba(255, 255, 255, .14);
+  --v4-border-strong: rgba(255, 255, 255, .28);
+  --v4-accent: #ef9b42;
+  --v4-text: #f0f4fa;
+  --v4-text-2: #c8d0d8;
+}
+
+html[data-theme="high-contrast"],
+html.theme-high-contrast {
+  --bg: #000000;
+  --bg2: #000000;
+  --s: #000000;
+  --s2: #080808;
+  --s3: #101010;
+  --s4: #181818;
+  --text: #ffffff;
+  --muted: #e7e7e7;
+  --dim: #bdbdbd;
+  --line: #ffffff;
+  --line2: #ffffff;
+  --v4-bg: #000000;
+  --v4-bg-2: #000000;
+  --v4-panel: #000000;
+  --v4-panel-2: #080808;
+  --v4-panel-3: #101010;
+  --v4-surface: #181818;
+  --v4-text: #ffffff;
+  --v4-text-2: #f0f0f0;
+  --v4-muted: #e7e7e7;
+  --v4-dim: #bdbdbd;
+  --v4-border: #ffffff;
+  --v4-border-strong: #ffffff;
+  --v4-accent: #ffcc00;      /* amarillo para máximo contraste */
+  --v4-accent-soft: rgba(255, 204, 0, .25);
+  --v4-cyan: #66ccff;
+  --v4-green: #66ff99;
+  --v4-red: #ff6666;
+  --v4-shadow: none;
+}
+}

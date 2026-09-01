@@ -1,0 +1,526 @@
+/* LGMDM — Stage 1 console contract
+ * This layer gates secondary/legacy surfaces without deleting their DOM.
+ * The current release exposes only the Studio/Analysis shell requested for
+ * the first final pass; disabled modules remain available to re-enable later.
+ */
+@layer stage-visibility {
+  /* The current shell already communicates service state in the header. */
+  .lg-health-strip,
+  .lg-footer { display: none !important; }
+
+  .lg-header-center {
+    grid-column: 1;
+    justify-self: start;
+    text-align: left;
+  }
+
+  .lg-brand-lockup {
+    grid-column: 2;
+    justify-self: center;
+  }
+
+  .lg-header-actions {
+    grid-column: 3;
+  }
+
+  .lg-header-service-label {
+    color: var(--v4-dim, var(--dim));
+    font: 800 8px var(--v4-mono, var(--mono));
+    letter-spacing: .1em;
+  }
+
+  /* Secondary console surfaces intentionally parked for this stage. */
+  .lg-console-topbar,
+  .lg-console-controlbar,
+  .lg-chain-control-strip,
+  .lg-spectrum-row,
+  .lg-console-transport { display: none !important; }
+
+  /* Keep only Studio + Analysis in the primary workspace navigation. */
+  .lg-workspace-workspace-tab[data-workspace="presets"],
+  .lg-workspace-tab-actions { display: none !important; }
+
+  .lg-main-stack {
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .lg-workspace-surface,
+  #content,
+  .cns-shell,
+  .cns-body,
+  .cns-console-wrap,
+  .lg-workspace-workspace-shell {
+    height: 100%;
+  }
+
+  .cns-shell {
+    margin: 0;
+  }
+
+  .cns-body {
+    grid-template-columns: 180px 6px minmax(0, 1fr) 6px 190px;
+  }
+
+  .cns-panel {
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .cns-console-wrap {
+    min-height: 0;
+  }
+
+  .lg-workspace-workspace-tabs {
+    flex: 0 0 42px;
+    height: 42px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--v4-border, var(--line));
+  }
+
+  .lg-workspace-workspace-tab {
+    width: 100%;
+    min-height: 42px;
+    border: 0;
+    border-right: 1px solid var(--v4-border, var(--line));
+    border-radius: 0;
+  }
+
+  .lg-workspace-workspace-tab.active {
+    border-bottom: 2px solid var(--v4-accent, var(--a));
+  }
+
+  .console-workspace {
+    padding: 8px;
+    overflow: hidden;
+  }
+
+  .lg-console {
+    min-height: 0;
+    height: 100%;
+    gap: 0;
+  }
+
+  .cns-console {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    grid-template-columns: 74px 6px minmax(0, 1fr);
+    grid-template-rows: 150px 6px 105px 6px minmax(130px, 1fr);
+    gap: 8px;
+  }
+
+  .cns-zone-lower {
+    --cns-gr-w: minmax(250px, 1fr);
+    grid-template-columns: minmax(220px, 1fr) 6px minmax(210px, .9fr);
+    gap: 8px;
+  }
+
+  /* The upload block is intentionally reduced to the essential workflow. */
+  #pasoArchivo > summary { display: none; }
+  #pasoArchivo .button-row,
+  #pasoArchivo .panel-block-secondary,
+  #pasoArchivo #saveToLibraryChk,
+  #pasoArchivo .process-card-body > div:nth-child(2),
+  #pasoArchivo .process-card-body > div:nth-child(3) { display: none !important; }
+
+  #pasoArchivo,
+  #pasoArchivo .process-card-body { display: block; }
+
+  .cns-panel-left > .cns-block:first-child {
+    overflow-y: auto;
+  }
+
+  .cns-panel-left #cnsOutputFormatBlock {
+    flex: 0 0 auto;
+    border-top: 1px solid var(--line);
+  }
+
+  .cns-panel-left .cns-block-grow {
+    min-height: 150px;
+  }
+
+  /* Keep the GR surface present even when no telemetry is available yet. */
+  #studioGrPanel {
+    display: flex !important;
+    min-height: 0;
+  }
+
+  /* The quick-action path remains available through the real AI panel;
+     the stage UI uses the embedded Laia surface instead. */
+  #aiPanel { z-index: 120; }
+
+  @media (max-width: 1180px) {
+    .cns-body { grid-template-columns: 170px 6px minmax(0, 1fr) 6px 180px; }
+  }
+
+  @media (max-width: 960px) {
+    .cns-body { height: auto; }
+    .lg-workspace-surface,
+    #content,
+    .cns-shell,
+    .cns-console-wrap,
+    .lg-workspace-workspace-shell { height: auto; }
+    .console-workspace { overflow: visible; }
+    .cns-console { height: auto; }
+  }
+}
+
+@layer stage-visibility {
+  .stage-track-context {
+    display: grid;
+    gap: 2px;
+    margin-top: 8px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--s2);
+  }
+  .stage-track-kicker {
+    color: var(--v4-accent, var(--a));
+    font: 800 9px var(--v4-mono, var(--mono));
+    letter-spacing: .12em;
+  }
+  #stageTrackName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--v4-text, var(--text));
+    font: 800 11px var(--v4-mono, var(--mono));
+  }
+  #stageTrackMeta {
+    color: var(--v4-dim, var(--dim));
+    font: 600 9px var(--v4-mono, var(--mono));
+  }
+
+  #studioGrPanel .studio-gr-grid {
+    gap: 6px;
+  }
+  #studioGrPanel .studio-gr-card {
+    grid-template-columns: 48px 52px minmax(0,1fr);
+  }
+}
+
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Stage 2 — visual contract from the approved console sketch.
+   This pass changes presentation only: existing IDs/handlers remain intact.
+   ────────────────────────────────────────────────────────────────────────── */
+@layer stage-visibility {
+  .cns-shell {
+    --cns-left-w: 180px;
+    --cns-right-w: 190px;
+    --cns-left-min: 160px;
+    --cns-left-max: 260px;
+    --cns-right-min: 180px;
+    --cns-right-max: 300px;
+    --cns-wave-h: clamp(175px, 28vh, 310px);
+    --cns-ana-h: clamp(105px, 16vh, 175px);
+    margin-top: 0;
+  }
+
+  .cns-body {
+    height: 100%;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .cns-panel {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .cns-panel-left,
+  .cns-panel-right {
+    max-height: none;
+  }
+
+  .cns-block {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .cns-panel-left > .cns-block:first-child {
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .cns-panel-left #pasoArchivo {
+    flex: 0 0 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .cns-panel-left #pasoArchivo .process-card-body {
+    display: block;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .cns-panel-left #pasoArchivo .process-card-body > div:first-child {
+    display: block;
+  }
+
+  .cns-panel-left #dropZone {
+    min-height: 118px;
+    padding: 12px 8px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .cns-panel-left #dropZone .icon {
+    display: none;
+  }
+
+  .stage-upload-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 14px;
+    border: 1px solid var(--v4-accent, var(--a));
+    border-radius: 3px;
+    background: var(--s3);
+    color: var(--v4-text, var(--text));
+    font: 900 12px var(--v4-mono, var(--mono));
+    letter-spacing: .08em;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .stage-upload-button:hover,
+  #dropZone.dragover .stage-upload-button {
+    background: var(--v4-accent-soft, var(--accent-soft));
+  }
+
+  .stage-upload-help {
+    margin: 0;
+    color: var(--v4-dim, var(--dim));
+    font: 600 8px/1.35 var(--v4-mono, var(--mono));
+    text-align: center;
+  }
+
+  .cns-panel-left #fileName,
+  .cns-panel-left #fileSizeWarn {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9px;
+  }
+
+  .stage-track-context {
+    margin-top: 6px;
+    padding: 7px;
+  }
+
+  .cns-panel-left #cnsOutputFormatBlock {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    gap: 4px;
+  }
+
+  .cns-panel-left #cnsOutputFormatBlock .cns-block-head {
+    margin-bottom: 1px;
+  }
+
+  .cns-panel-left #cnsOutputFormatBlock .select-full {
+    min-height: 26px;
+    padding: 3px 6px;
+    font-size: 9px;
+  }
+
+  .cns-panel-left > .cns-block > .cns-block-grow {
+    min-height: 0;
+    padding-top: 6px;
+    overflow: hidden;
+  }
+
+  .cns-panel-left #studioFamilyMount {
+    min-height: 0;
+    overflow: auto;
+    padding-right: 1px;
+  }
+
+  .cns-panel-left .cns-block-grow .cns-block-head {
+    flex: 0 0 auto;
+  }
+
+  .cns-panel-right .cns-block {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .cns-panel-right #studioRackMount {
+    min-height: 0;
+  }
+
+  .lg-workspace-workspace-tabs {
+    border-bottom-color: var(--v4-border, var(--line));
+  }
+
+  .lg-workspace-workspace-tab {
+    font: 800 11px var(--v4-mono, var(--mono));
+    letter-spacing: .06em;
+  }
+
+  .console-workspace {
+    padding: 5px;
+  }
+
+  .cns-console {
+    grid-template-rows: var(--cns-wave-h) 6px var(--cns-ana-h) 6px minmax(145px, 1fr);
+    gap: 6px;
+  }
+
+  .cns-zone-wave .cns-card,
+  .cns-zone-ana .cns-card,
+  .cns-zone-lower .cns-card {
+    border-radius: 3px;
+  }
+
+  .cns-zone-wave .cns-card-head,
+  .cns-zone-ana .cns-card-head,
+  .cns-agent-zone .cns-card-head {
+    margin-bottom: 5px;
+  }
+
+  .cns-zone-wave .cns-card {
+    padding: 8px 10px;
+  }
+
+  .cns-zone-wave .lg-wave-stage {
+    min-height: 120px;
+  }
+
+  .cns-zone-wave .lg-wave-footer {
+    font-size: 9px;
+  }
+
+  .cns-zone-ana .cns-card {
+    padding: 7px 10px;
+  }
+
+  .cns-analyzer-body {
+    justify-content: flex-start;
+    gap: 5px;
+    overflow: hidden;
+  }
+
+  .cns-analyzer-body .studio-chain-flow,
+  .cns-analyzer-body .text-muted-body,
+  .cns-analyzer-body #consoleOpenAnalysis {
+    display: none !important;
+  }
+
+  .ms-control-label--preview {
+    margin: 0;
+    font-size: 10px;
+  }
+
+  #previewStatus {
+    margin: 0;
+    font-size: 9px;
+  }
+
+  .cns-zone-lower {
+    --cns-gr-w: minmax(250px, 1.2fr);
+  }
+
+  .cns-zone-lower #studioGrPanel {
+    padding: 7px 9px;
+  }
+
+  #studioGrPanel .studio-gr-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  #studioGrPanel .studio-gr-card {
+    grid-template-columns: 36px minmax(0, 1fr);
+    grid-template-areas: "top top" "meter meter";
+    gap: 3px;
+    padding: 5px;
+  }
+
+  #studioGrPanel .studio-gr-card .studio-gr-top {
+    grid-area: top;
+  }
+
+  #studioGrPanel .studio-gr-card .studio-gr-track {
+    grid-area: meter;
+  }
+
+  #studioGrPanel .studio-gr-note {
+    margin-top: 5px;
+    font-size: 8px;
+  }
+
+  .cns-agent-zone {
+    min-width: 0;
+    padding: 7px 9px;
+  }
+
+  .cns-agent-msg {
+    padding: 6px 8px;
+    font-size: 9px;
+  }
+
+  .cns-agent-input-row input,
+  .cns-agent-input-row button {
+    min-height: 27px;
+    font-size: 9px;
+  }
+
+  .cns-vu-rack {
+    padding: 6px;
+  }
+
+  .cns-lufs-readout strong {
+    font-size: 12px;
+  }
+
+  /* Keep secondary features parked. They can be reactivated later without
+     removing their DOM or their existing handlers. */
+  #quickPitch,
+  #quickMeter,
+  #quickReference,
+  #quickAI,
+  #workspacePresetGrid,
+  .presets-workspace {
+    display: none !important;
+  }
+
+  @media (max-width: 1180px) {
+    .cns-shell {
+      --cns-left-w: 172px;
+      --cns-right-w: 185px;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .cns-shell {
+      --cns-left-w: 100%;
+      --cns-right-w: 100%;
+    }
+    .cns-body {
+      height: auto;
+    }
+    .cns-panel-left,
+    .cns-panel-right {
+      max-height: 360px;
+    }
+    .cns-console {
+      grid-template-rows: 260px 6px 135px 6px minmax(180px, auto);
+    }
+  }
+}

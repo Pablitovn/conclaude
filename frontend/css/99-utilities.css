@@ -1,0 +1,23 @@
+@layer utilities {
+/* CL-1: .hidden movido desde @layer tokens en 00-theme.css */
+.hidden, .lgjs-hidden, .hidden-panel { display: none !important; }
+
+/* C-A2 (audit): modernizado de clip:rect(0,0,0,0) (deprecated) a
+   clip-path: inset(50%); clip: auto para compat total */
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;clip:auto!important;white-space:nowrap!important;border:0}
+
+.ml-auto{margin-left:auto}
+.space-top-sm{margin-top:8px}
+.mt-sm{margin-top:8px}
+.muted,.muted-small{color:var(--muted)}
+.section-note{color:var(--muted);font-size:9px;font-weight:700}
+.field-input{width:auto}
+.accent-amber{accent-color:var(--a)}
+.link-inline{font-size:9px}
+.mb-sm{margin-bottom:6px}
+.mb-xs{margin-bottom:4px}
+.limiter{border-color:rgba(238,109,109,.28)!important;background:linear-gradient(180deg,rgba(238,109,109,.05),transparent)!important}
+
+/* C-A4 (audit): modernizado de clip:rect() (deprecated) a clip-path */
+.hidden-input { position:absolute!important; width:1px!important; height:1px!important; opacity:0!important; overflow:hidden!important; clip-path:inset(50%)!important; clip:auto!important; pointer-events:none; }
+}

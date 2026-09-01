@@ -1,0 +1,422 @@
+/* ============================================================
+   06-pro-console.css
+   Estilos para los elementos que inyecta 23-pro-console.js
+   ─────────────────────────────────────────────────────────────
+   El JS genera en runtime:
+     · .lg-pro-expert-toggle      → prepend en .lg-console-actions
+     · .lg-pro-chain-shell        → reemplaza .lg-chain-panel
+       └─ .lg-pro-chain-head      → título + badge .lg-pro-online
+       └─ .lg-pro-chain-flow      → fila horizontal de nodos
+          └─ .lg-pro-node         → cada botón (+ .active, .bypassed)
+             ├─ .lg-pro-node-state   <i>  dot indicador
+             ├─ .lg-pro-node-index       "01"
+             ├─ .lg-pro-node-title       "INPUT"
+             └─ .lg-pro-node-value       "Gain / Trim"
+     · .lg-pro-expert-banner      → insertado antes de .lg-console-controlbar
+     · .lg-pro-expert-panel       → appended a #lgMasterConsole
+       └─ .lg-pro-expert-grid     → grid 4 columnas
+          └─ .lg-pro-mini-param   → cada parámetro (label, select/range, output)
+
+   Nota: la status bar (MASTER ENGINE / chips INPUT-LUFS-PEAK-MODE)
+   y la preset bar fueron removidas del JS — no hay HTML que estilar.
+
+   Variables: sistema clásico (--a, --ok, --line, --s, --mono…)
+   para coincidir con console-shell.css donde viven estos elementos.
+   ============================================================ */
+
+@layer pro-console {
+
+  /* ══════════════════════════════════════════════════════════
+     1. EXPERT MODE TOGGLE
+     Prepended en .lg-console-topbar .lg-console-actions
+     ══════════════════════════════════════════════════════════ */
+
+  .lg-pro-expert-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--muted);
+    font: 700 8px var(--mono);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+
+  .lg-pro-expert-toggle:hover {
+    border-color: var(--line2);
+    color: var(--text);
+  }
+
+  .lg-pro-expert-toggle input[type="checkbox"] {
+    accent-color: var(--a);
+    width: 11px;
+    height: 11px;
+    margin: 0;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+
+  body.lg-pro-expert .lg-pro-expert-toggle {
+    border-color: color-mix(in srgb, var(--a) 45%, var(--line));
+    color: var(--a);
+  }
+
+
+  /* ══════════════════════════════════════════════════════════
+     2. ONLINE / ROUTED BADGE
+     Compartido por .lg-pro-chain-head y donde sea que aparezca
+     ══════════════════════════════════════════════════════════ */
+
+  .lg-pro-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--ok);
+    font: 800 8px var(--mono);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .lg-pro-online i {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--ok) 55%, transparent);
+    animation: lg-pro-dot-pulse 1.8s ease-in-out infinite;
+    font-style: normal;
+  }
+
+  @keyframes lg-pro-dot-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: .28; }
+  }
+
+
+  /* ══════════════════════════════════════════════════════════
+     3. PROCESSING CHAIN SHELL
+     Reemplaza .lg-chain-panel dentro de .lg-spectrum-row
+     ══════════════════════════════════════════════════════════ */
+
+  .lg-pro-chain-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r2);
+    background: linear-gradient(180deg, var(--s2), var(--s));
+    min-width: 0;
+  }
+
+  /* ── 3a. Chain head ─────────────────────────────── */
+
+  .lg-pro-chain-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .lg-pro-chain-head > div {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  .lg-pro-chain-head strong {
+    color: var(--text);
+    font: 800 9px var(--mono);
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  .lg-pro-chain-head small {
+    color: var(--muted);
+    font: 500 8px var(--mono);
+  }
+
+  /* ── 3b. Chain flow ─────────────────────────────── */
+
+  .lg-pro-chain-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .lg-pro-chain-flow::-webkit-scrollbar { display: none; }
+
+  /* ── 3c. Nodo ───────────────────────────────────── */
+
+  .lg-pro-node {
+    flex: 1 1 0;
+    min-width: 52px;
+    max-width: 88px;
+    display: grid;
+    grid-template-rows: 8px auto auto auto;
+    justify-items: center;
+    align-items: start;
+    gap: 2px;
+    padding: 7px 5px 6px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--s);
+    cursor: pointer;
+    font: inherit;
+    text-align: center;
+    transition: border-color .14s, background .14s;
+  }
+
+  .lg-pro-node:hover {
+    border-color: var(--line2);
+    background: var(--s2);
+  }
+
+  .lg-pro-node:focus-visible {
+    outline: 2px solid var(--a);
+    outline-offset: 2px;
+  }
+
+  .lg-pro-node.active {
+    border-color: color-mix(in srgb, var(--a) 55%, var(--line));
+    background: color-mix(in srgb, var(--a) 7%, var(--s));
+  }
+
+  .lg-pro-node.bypassed {
+    opacity: .38;
+  }
+
+  /* dot de estado */
+  .lg-pro-node-state {
+    display: block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--dim);
+    font-style: normal;
+    transition: background .2s, box-shadow .2s;
+    align-self: center;
+  }
+
+  .lg-pro-node.active .lg-pro-node-state {
+    background: var(--ok);
+    box-shadow: 0 0 5px color-mix(in srgb, var(--ok) 50%, transparent);
+  }
+
+  .lg-pro-node.bypassed .lg-pro-node-state {
+    background: var(--danger);
+    box-shadow: none;
+  }
+
+  /* número de paso */
+  .lg-pro-node-index {
+    color: var(--a);
+    font: 800 7px var(--mono);
+    letter-spacing: .06em;
+  }
+
+  /* nombre del stage */
+  .lg-pro-node-title {
+    color: var(--text);
+    font: 800 9px var(--mono);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* descripción corta */
+  .lg-pro-node-value {
+    color: var(--muted);
+    font: 500 7px var(--mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+
+  /* ══════════════════════════════════════════════════════════
+     4. EXPERT BANNER
+     Insertado antes de .lg-console-controlbar
+     Visible solo cuando body.lg-pro-expert
+     ══════════════════════════════════════════════════════════ */
+
+  .lg-pro-expert-banner {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 6px 12px;
+    border: 1px solid color-mix(in srgb, var(--a) 28%, var(--line));
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--a) 6%, transparent);
+  }
+
+  .lg-pro-expert-banner > span:first-child {
+    color: var(--a);
+    font: 800 8px var(--mono);
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  .lg-pro-expert-banner > span:last-child {
+    color: var(--muted);
+    font: 500 8px var(--mono);
+  }
+
+  body.lg-pro-expert .lg-pro-expert-banner {
+    display: flex;
+  }
+
+
+  /* ══════════════════════════════════════════════════════════
+     5. EXPERT ONLY — gate de visibilidad
+     ══════════════════════════════════════════════════════════ */
+
+  .lg-pro-expert-only {
+    display: none !important;
+  }
+
+  body.lg-pro-expert .lg-pro-expert-only {
+    display: block !important;
+  }
+
+
+  /* ══════════════════════════════════════════════════════════
+     6. EXPERT PANEL
+     Appended a #lgMasterConsole
+     ══════════════════════════════════════════════════════════ */
+
+  .lg-pro-expert-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid color-mix(in srgb, var(--a) 22%, var(--line));
+    border-radius: var(--r2);
+    background: color-mix(in srgb, var(--a) 4%, var(--s));
+    min-width: 0;
+  }
+
+  /* ── 6a. Expert grid ────────────────────────────── */
+
+  .lg-pro-expert-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  /* ── 6b. Mini param ─────────────────────────────── */
+
+  .lg-pro-mini-param {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  .lg-pro-mini-param label {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 3px;
+    cursor: default;
+  }
+
+  .lg-pro-mini-param label span:first-child {
+    color: var(--muted);
+    font: 700 7px var(--mono);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .lg-pro-mini-param label span:last-child {
+    color: var(--dim);
+    font: 600 6px var(--mono);
+    letter-spacing: .08em;
+    text-align: right;
+  }
+
+  .lg-pro-mini-param select {
+    width: 100%;
+    min-width: 0;
+    padding: 3px 6px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: var(--s3);
+    color: var(--text);
+    font: 600 8px var(--mono);
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%235e6880'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    padding-right: 18px;
+  }
+
+  .lg-pro-mini-param select:focus {
+    border-color: var(--a);
+  }
+
+  .lg-pro-mini-param input[type="range"] {
+    width: 100%;
+    min-width: 0;
+    accent-color: var(--a);
+    cursor: pointer;
+    height: 3px;
+  }
+
+  .lg-pro-mini-param output {
+    display: block;
+    color: var(--muted);
+    font: 600 7px var(--mono);
+    text-align: right;
+    min-width: 0;
+  }
+
+
+  /* ══════════════════════════════════════════════════════════
+     7. RESPONSIVE
+     ══════════════════════════════════════════════════════════ */
+
+  @media (max-width: 960px) {
+    .lg-pro-chain-flow {
+      gap: 3px;
+    }
+
+    .lg-pro-node {
+      min-width: 44px;
+      padding: 6px 4px 5px;
+    }
+
+    .lg-pro-node-value {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .lg-pro-expert-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lg-pro-node-title {
+      font-size: 8px;
+    }
+  }
+
+}

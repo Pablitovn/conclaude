@@ -1,0 +1,152 @@
+@layer studio-theme {
+/* Studio theme (DAW) — activated only when the theme loader sets data-studio-theme="true"
+   and optionally data-studio-variant="neon" | "carbon" | "analog" on the <html> element.
+   This file is safe to load/unload dynamically. */
+html[data-studio-theme="true"]{
+  --bg: #0b0f18;
+  --panel: linear-gradient(180deg,#0e1420 0%, #0b1018 100%);
+  --glass: rgba(255,255,255,0.03);
+  --accent: #69e7ff; /* default neon */
+  --accent-2: #c66cff;
+  --muted: #7e8798;
+  --text: #e8f1ff;
+  --line: rgba(255,255,255,0.06);
+  --shadow-soft: 0 6px 20px rgba(2,6,23,0.6);
+  --glass-border: rgba(255,255,255,0.04);
+  --meter-grad: linear-gradient(180deg, #00ff9e, #0fbf9c 60%, #2ca3ff 100%);
+  --fader-height: 140px;
+  --knob-size: 44px;
+  font-synthesis: none;
+}
+
+/* Variants */
+html[data-studio-theme="true"][data-studio-variant="neon"]{
+  --accent:#69e7ff; --accent-2:#c66cff; --panel: linear-gradient(180deg,#0e1420 0%, #06111a 100%);
+}
+html[data-studio-theme="true"][data-studio-variant="carbon"]{
+  --accent:#d2ad6d; --accent-2:#8b6a35; --panel: linear-gradient(180deg,#0c0d0f 0%, #0a0b0d 100%);
+  --meter-grad: linear-gradient(180deg,#d2ad6d,#b88947 80%,#8b6a35);
+}
+html[data-studio-theme="true"][data-studio-variant="analog"]{
+  --accent:#ffb86b; --accent-2:#d66a2f; --panel: linear-gradient(180deg,#1a1310 0%, #0e0b0a 100%);
+  --meter-grad: linear-gradient(180deg,#ffb86b,#f08a3a 80%,#d66a2f);
+}
+
+/* Basic helpers so the theme looks integrated with existing markup */
+html[data-studio-theme="true"] .daw-root,
+html[data-studio-theme="true"] .lg-app {
+  /* CL-2 (audit): los `!important` eran innecesarios en custom
+     properties — la cascada ya las resuelve por orden. Solo los
+     mantenemos en `background` y `color` (no son custom properties,
+     son propiedades CSS que se aplican al elemento) por la
+     defensa contra 01-reset-base.css (que está muerto, sin @layer
+     y con un background con radial-gradient sobre .lg-app). Si
+     alguien lo re-enlaza, este !important protege. Cuando borremos
+     01-reset-base.css (CL-F1) podemos volver a sacarlo. */
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Glass panel */
+html[data-studio-theme="true"] .daw-panel,
+html[data-studio-theme="true"] .lg-header,
+html[data-studio-theme="true"] .lg-sidebar,
+html[data-studio-theme="true"] .lg-console,
+html[data-studio-theme="true"] .lg-footer {
+  background: var(--panel);
+  border-radius:8px;
+  border:1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(8px) saturate(120%);
+}
+
+/* Transport / top bar */
+html[data-studio-theme="true"] .daw-transport,
+html[data-studio-theme="true"] .lg-header {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:10px 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.0));
+  border-bottom:1px solid var(--line);
+}
+html[data-studio-theme="true"] .btn {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
+  color:var(--text);
+  padding:8px 10px;
+  border-radius:6px;
+  border:1px solid rgba(255,255,255,0.03);
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  transition:all .12s ease;
+}
+html[data-studio-theme="true"] .btn:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,0.5); }
+html[data-studio-theme="true"] .time { font-variant-numeric: tabular-nums; color:var(--muted); }
+
+/* Layout grid for a typical DAW shell */
+html[data-studio-theme="true"] .daw-grid{
+  display:grid;
+  grid-template-columns: 260px 1fr 360px;
+  gap:16px;
+  padding:16px;
+}
+html[data-studio-theme="true"] .track-list{
+  display:flex; flex-direction:column; gap:10px;
+}
+html[data-studio-theme="true"] .track-item{
+  display:flex; align-items:center; gap:10px; padding:8px; border-radius:6px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
+  border:1px solid var(--line);
+}
+html[data-studio-theme="true"] .track-item .color-dot{ width:12px; height:12px; border-radius:3px; }
+
+/* Timeline */
+html[data-studio-theme="true"] .timeline{
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
+  min-height:400px; border-radius:8px; border:1px solid var(--line); padding:10px; position:relative; overflow:hidden;
+}
+html[data-studio-theme="true"] .timeline .ruler{ height:36px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; color:var(--muted); padding-left:8px; }
+
+/* Channel strip */
+html[data-studio-theme="true"] .channel-strip{
+  width:88px; display:flex; flex-direction:column; align-items:center; gap:10px; padding:10px; border-radius:8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.04)); border:1px solid var(--line);
+}
+
+/* Knob */
+html[data-studio-theme="true"] .knob{
+  width:var(--knob-size); height:var(--knob-size); border-radius:50%;
+  background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(0,0,0,0.12));
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.02), 0 6px 16px rgba(0,0,0,0.6);
+  display:flex; align-items:center; justify-content:center; position:relative;
+}
+html[data-studio-theme="true"] .knob::after{
+  content:''; position:absolute; width:2px; height:10px; background:var(--muted); top:8px; left:50%; transform:translateX(-50%) rotate(0deg); transform-origin:50% 70%; border-radius:2px;
+}
+
+/* Fader */
+html[data-studio-theme="true"] .fader{
+  width:28px; height:var(--fader-height); background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
+  border-radius:6px; padding:6px; display:flex; align-items:flex-end; justify-content:center; position:relative; border:1px solid var(--line);
+}
+html[data-studio-theme="true"] .fader .thumb{ width:20px; height:6px; background:var(--accent); border-radius:3px; box-shadow:0 4px 10px rgba(0,0,0,0.6); transition: transform .08s linear; }
+
+/* Meter */
+html[data-studio-theme="true"] .meter{ width:10px; height:120px; border-radius:4px; background: rgba(255,255,255,0.02); overflow:hidden; border:1px solid rgba(255,255,255,0.03); }
+html[data-studio-theme="true"] .meter .level{ width:100%; height:30%; background: var(--meter-grad); transform-origin: bottom; transition: height .12s ease; }
+
+/* Buttons */
+html[data-studio-theme="true"] .btn-toggle{
+  width:36px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center;
+  background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); color:var(--muted); cursor:pointer;
+}
+html[data-studio-theme="true"] .btn-toggle.active{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06)); color:var(--accent); box-shadow:0 8px 20px rgba(0,0,0,0.6); }
+
+html[data-studio-theme="true"] .row{ display:flex; gap:8px; align-items:center; }
+html[data-studio-theme="true"] .small{ font-size:12px; color:var(--muted); }
+}
