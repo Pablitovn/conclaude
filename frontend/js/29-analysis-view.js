@@ -49,20 +49,6 @@
     redraw: () => { if (lastData) renderServerAnalysis(lastData); },
   });
 
-  const bind = (el, type, fn, key) => {
-    if (LG.ui?.bindOnce) return LG.ui.bindOnce(el, type, fn, key);
-    if (el) el.addEventListener(type, fn);
-    return true;
-  };
-
-  document.querySelectorAll('.lg-workspace-workspace-tab').forEach((tab) => {
-    bind(tab, 'click', () => {
-      if (tab.dataset.workspace === 'analysis') {
-        requestAnimationFrame(() => window.LGMDM?.analysis?.request?.({ clear: false }).catch((error) => { console.error('[analysis] workspace request failed', error); }));
-      }
-    }, 'analysis-view-tab');
-  });
-
   window.addEventListener('lgmdm:analysis-state', (event) => {
     const detail = event.detail || {};
     setStatus(detail.state || 'idle', detail.text || '', detail.progress ?? null);
@@ -102,22 +88,6 @@
     return data;
   }
 
-  function handleAnalysisWorkspaceOpen() {
-    if (!(window.selectedFile instanceof File)) {
-      clear();
-      return;
-    }
-    if (lastData && requestedFile === window.selectedFile) {
-      renderServerAnalysis(lastData);
-      setStatus('ready', 'Análisis completo del servidor disponible');
-      return;
-    }
-    requestAnalysis().catch((error) => {
-      console.error('[analysis] server-side analysis failed', error);
-      setStatus('error', error.message);
-      window.dispatchEvent(new CustomEvent('lgmdm:analysis-state', { detail: { state: 'error', text: error.message } }));
-    });
-  }
   window.addEventListener('lgmdm:file-selected', () => { requestSeq += 1; lastData = null; requestedFile = null; clear(); });
 })();
 

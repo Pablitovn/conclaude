@@ -345,7 +345,6 @@ function renderAnalysisComparison(before, after) {
 }
 
 // ── A/B Player con waveforms superpuestas ────────────────────
-const audioState = window.LGMDM.state.audio.visualizers || (window.LGMDM.state.audio.visualizers = { abGain: null, abNode: null, livePlayTime: 0 });
 let _abOriginalBuf  = null;   // AudioBuffer del original decodificado
 let _abMasterBuf    = null;   // AudioBuffer del master decodificado
 let _abMode         = "master";
