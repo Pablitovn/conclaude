@@ -51,7 +51,7 @@
       req.onerror = () => reject(req.error || new Error('IndexedDB no disponible'));
       req.onupgradeneeded = () => {
         const db = req.result;
-        if (!db.objectStoreNames.contains(STORE)) db.createStore(STORE);
+        if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE);
       };
       req.onsuccess = () => resolve(req.result);
     }).catch(() => null);

@@ -1079,22 +1079,7 @@
                 </div>
               </div>
               <div class="process-card process-card-accent">
-                <button class="btn btn-automaster hidden-panel" disabled="" id="btnAutoMaster" type="button">
-                  🤖 Auto-Mastering IA
-                </button>
-                <button class="btn btn-secondary hidden-panel" disabled="" id="btnAiSuggest" type="button">
-                  🤖 Sugerir con IA (sin masterizar)
-                </button>
                 <div class="grid-2cols-tight" id="secondaryBtnGrid">
-                  <button class="btn btn-secondary hidden-panel" disabled="" id="btnAnalyzeGrid" type="button">
-                    🔍 Analizar
-                  </button>
-                  <button class="btn btn-secondary hidden-panel" disabled="" id="btnAdviceGrid" type="button">
-                    💡 Consejos
-                  </button>
-                  <button class="btn btn-secondary hidden-panel" disabled="" id="btnSpectrum" type="button">
-                    📊 Spectrum
-                  </button>
                   <select class="select-full hidden-panel" id="s-stems-mode" title="Modo de separación de stems">
                     <option selected="" value="demucs_4stem">🧬 Demucs — 4 stems (voz/batería/bajo/otros)</option>
                     <option value="vocals_hq">🎤 Roformer — solo voz/instrumental (mejor calidad de voz)</option>
@@ -1686,6 +1671,17 @@
                                 <input checked="" class="field-input" data-persist="false" id="s-livepreview" type="checkbox"/>
                                 Preview en tiempo real
                               </label>
+                              <div class="lg-analysis-actions" aria-label="Herramientas de análisis">
+                                <div class="lg-analysis-actions-primary">
+                                  <button class="btn btn-automaster" disabled="" id="btnAutoMaster" type="button">🤖 Auto-Mastering IA</button>
+                                  <button class="btn btn-secondary" disabled="" id="btnAiSuggest" type="button">🤖 Sugerir con IA</button>
+                                </div>
+                                <div class="lg-analysis-actions-secondary">
+                                  <button class="btn btn-secondary" disabled="" id="btnAnalyzeGrid" type="button">🔍 Analizar</button>
+                                  <button class="btn btn-secondary" disabled="" id="btnAdviceGrid" type="button">💡 Consejos</button>
+                                  <button class="btn btn-secondary" disabled="" id="btnSpectrum" type="button">📊 Spectrum</button>
+                                </div>
+                              </div>
                               <div class="status-text" id="previewStatus">
                                 Preview deshabilitado
                               </div>
