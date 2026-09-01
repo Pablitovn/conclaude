@@ -92,7 +92,9 @@
         if (document.getElementById("previewAudioWrap")) document.getElementById("previewAudioWrap").replaceChildren();
         window.LGMDM?.spectrum?.clear?.();
         hideDynEqRecommendation();
-        setPreviewStatus("Preview deshabilitado");
+        if (!document.getElementById("s-livepreview")?.checked) {
+          setPreviewStatus("Preview deshabilitado");
+        }
 
         if (typeof window.LGMDM?.meters?.teardownLiveMeters === 'function') window.LGMDM.meters.teardownLiveMeters();
 
