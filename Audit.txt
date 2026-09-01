@@ -413,6 +413,37 @@ Si se requiere una segunda etapa de limpieza, las areas prioritarias son:
 4. Revisar todos los innerHTML dinamicos con una politica comun de escape.
 5. Instrumentar llamadas API para detectar doble request por accion del usuario.
 
+AUDITORIA ESPECIFICA DE ESTADOS HIDDEN
+======================================
+
+Se revisaron atributo HTML hidden, clases hidden/lgjs-hidden/hidden-panel,
+aria-hidden y reglas display:none. Resultado:
+
+CORREGIDO DURANTE ESTA REVISION:
+- IA: auto-master y sugerencias ahora quitan .hidden y agregan .open al abrir.
+  El boton flotante y el boton cerrar sincronizan ambas clases.
+- Reference Preview: usa hidden como estado canonico; se muestra al iniciar y se
+  oculta al detener.
+- Reference EQ Curve: se muestra quitando hidden cuando existe una curva.
+- Match Mastering: se retiro el hidden permanente de matchMasteringBlock porque
+  tiene controles y handlers funcionales.
+- Console Topbar: se retiro del grupo de Stage 1 que forzaba display:none!important,
+  porque contiene Analizar, Master, nombre de pista, Descargar y Reporte, y los
+  controladores intentan mostrarlos al completar trabajos.
+
+HIDDEN INTENCIONAL, NO MODIFICADO:
+- workflowSidebar y sidebarResizeHandle: Stage 1 los aparca; el controlador de
+  layout ya detecta hidden y deja una sola columna para que no rompan el shell.
+- presets, health strip, meters y controles secundarios: estan desactivados por el
+  contrato visual Stage 1 y no deben reactivarse sin decision de producto.
+- auth overlay, formularios login/registro y menu de temas: estados coherentes.
+
+VALIDACION POSTERIOR:
+- index.html y los JS de estados modificados no reportan errores del editor.
+- 72 archivos JS pasan node --check.
+- git diff --check pasa.
+- No se dejaron usos de .open que ignoren el estado .hidden en las rutas corregidas.
+
 PLAN DE CORRECCION PRIORIZADO
 =============================
 

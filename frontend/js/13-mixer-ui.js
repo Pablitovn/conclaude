@@ -15,7 +15,7 @@
   // (incluso antes de leer mixerEngine). Antes el módulo se ejecutaba
   // hasta el throw de "mixer engine no inicializado", dejando la app
   // inconsistente si 13-mixer-engine.js fallaba en cargar.
-  if (!MIXER_ENABLED) {
+  if (window.LGMDM?.config?.mixerEnabled !== true) {
     return;
   }
 
@@ -1516,7 +1516,7 @@ function requireChannelChild(parent, selector, owner) {
   // ── Init ──────────────────────────────────────────────────────────────────
   let initialized = false;
   function init() {
-    if (!MIXER_ENABLED) return;
+    if (window.LGMDM?.config?.mixerEnabled !== true) return;
     if (initialized) return;
     initialized = true;
     initTemplates();

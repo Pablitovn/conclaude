@@ -30,7 +30,6 @@
   }
 
   /* Secondary console surfaces intentionally parked for this stage. */
-  .lg-console-topbar,
   .lg-console-controlbar,
   .lg-chain-control-strip,
   .lg-spectrum-row,
@@ -42,7 +41,8 @@
 
   .lg-main-stack {
     padding: 0 !important;
-    overflow: hidden !important;
+    overflow: auto !important;
+    overflow-x: hidden !important;
   }
 
   .lg-workspace-surface,

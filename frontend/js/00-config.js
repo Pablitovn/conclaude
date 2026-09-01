@@ -14,6 +14,7 @@
     maxFileMb: MAX_FILE_MB,
     maxFileBytes: MAX_FILE_BYTES,
     previewDurationSec: PREVIEW_DURATION_SEC,
+    mixerEnabled: false,
   });
 
   function applyConfigToDocument() {

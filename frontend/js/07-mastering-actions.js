@@ -123,7 +123,8 @@ document.getElementById("btnAutoMaster")?.addEventListener("click", async () => 
   if (masterBtn) masterBtn.disabled = true;
 
   const panel = LGMDM.dom.requireById("aiPanel", "07-mastering-actions:auto-master");
-  if (!panel.classList.contains("open")) panel.classList.add("open");
+  panel.classList.remove("hidden");
+  panel.classList.add("open");
   LGMDM.dom.requireById("aiSuggestions", "07-mastering-actions:auto-master").replaceChildren();
   aiShowTyping();
 
@@ -186,7 +187,8 @@ document.getElementById("btnAiSuggest")?.addEventListener("click", async () => {
   if (masterBtn2) masterBtn2.disabled = true;
 
   const panel2 = LGMDM.dom.requireById("aiPanel", "07-mastering-actions:ai-suggest");
-  if (!panel2.classList.contains("open")) panel2.classList.add("open");
+  panel2.classList.remove("hidden");
+  panel2.classList.add("open");
   LGMDM.dom.requireById("aiSuggestions", "07-mastering-actions:ai-suggest").replaceChildren();
   aiShowTyping();
 

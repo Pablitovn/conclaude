@@ -260,8 +260,9 @@ async function aiSendMessage() {
 
 aiEl("aiFab")?.addEventListener("click", () => {
   const panel = aiRequired("aiPanel", "11-ai-assistant-ux:toggle");
-  const opening = panel.classList.contains("hidden");
-  panel.classList.toggle("hidden");
+  const opening = panel.classList.contains("hidden") || !panel.classList.contains("open");
+  panel.classList.toggle("hidden", !opening);
+  panel.classList.toggle("open", opening);
   if (opening) {
     if (aiAvailable === null) {
       aiAppendMessage(
@@ -275,7 +276,11 @@ aiEl("aiFab")?.addEventListener("click", () => {
   }
 });
 
-aiEl("aiClose")?.addEventListener("click", () => aiRequired("aiPanel", "11-ai-assistant-ux:close").classList.add("hidden"));
+aiEl("aiClose")?.addEventListener("click", () => {
+  const panel = aiRequired("aiPanel", "11-ai-assistant-ux:close");
+  panel.classList.add("hidden");
+  panel.classList.remove("open");
+});
 aiEl("aiSend")?.addEventListener("click", aiSendMessage);
 aiEl("aiInput")?.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {

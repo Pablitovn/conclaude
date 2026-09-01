@@ -258,6 +258,7 @@ LGMDM.reference.bandEQ = (function() {
     const wrap = LGMDM.dom.requireById("refEqCurveWrap", "08-reference-mastering");
     const canvas = LGMDM.dom.requireById("refEqCurveCanvas", "08-reference-mastering");
     if (!wrap || !canvas || !curve || !curve.length) return;
+    wrap.hidden = false;
     wrap.style.display = "block";
     const ctx = canvas.getContext("2d");
     const W = canvas.width, H = canvas.height;
@@ -325,6 +326,10 @@ LGMDM.reference.bandEQ = (function() {
       refWs = null;
     }
     referenceAudioState.playTime = 0;
+    const panel = document.getElementById("refPreviewPanel");
+    const curve = document.getElementById("refEqCurveWrap");
+    if (panel) panel.hidden = true;
+    if (curve) curve.hidden = true;
     const status = LGMDM.dom.requireById("rp-status", "08-reference-mastering");
     if (status) status.textContent = "";
   }
@@ -332,7 +337,10 @@ LGMDM.reference.bandEQ = (function() {
   async function launchRefPreview() {
     stopRefPreview();
     const panel = LGMDM.dom.requireById("refPreviewPanel", "08-reference-mastering");
-    if (panel) panel.style.display = "block";
+    if (panel) {
+      panel.hidden = false;
+      panel.style.display = "block";
+    }
     if (!selectedFile || !referenceState.file) return;
     if (!refSessionId) refSessionId = genUUID();
     if (!refRefSessionId) refRefSessionId = genUUID();

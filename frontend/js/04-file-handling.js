@@ -84,7 +84,6 @@
         }
         LGMDM.ui.clearResults();
 
-        cachedFileBuffer = null;
         if (previewAudioUrl) {
           URL.revokeObjectURL(previewAudioUrl);
           previewAudioUrl = null;
@@ -243,7 +242,6 @@
         // vive solo en una variable local que se libera al
         // terminar la función.
         const ab = await f.arrayBuffer();
-        cachedFileBuffer = null; // P6: ya no se cachea
         const buf = await LGMDM.audio.decode(ab);
         drawWaveform(buf);
         // Un único contexto Web Audio compartido; no crear/cerrar contextos locales.

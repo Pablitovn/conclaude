@@ -1248,7 +1248,7 @@
                       </div>
 
                       <!-- Match Mastering (referencia) -->
-                      <details class="mb-none" id="matchMasteringBlock" hidden>
+                      <details class="mb-none" id="matchMasteringBlock">
                         <summary class="summary-accent">
                           <span class="summary-pill"></span>
                           🎯 Match Mastering (referencia)
@@ -1539,7 +1539,7 @@
                             ▶ Preview 10s (seg. 40)
                           </button>
                           <!-- Preview en tiempo real con referencia -->
-                          <div class="hidden-panel mt-lg" id="refPreviewPanel">
+                          <div class="mt-lg" id="refPreviewPanel" hidden>
                             <div class="section-title-row section-title-row--compact">
                               <span class="note-mini">Preview en tiempo real — seg. 40–50</span>
                               <button class="btn btn-tertiary" id="btnRefPreviewStop" type="button">■ Stop</button>
@@ -1550,7 +1550,7 @@
                               <span>RMS <b id="rp-rms">--</b></span>
                               <span>Corr <b id="rp-corr">--</b></span>
                             </div>
-                            <div class="hidden-panel mt-sm" id="refEqCurveWrap">
+                            <div class="mt-sm" id="refEqCurveWrap" hidden>
                               <div class="note-small mb-sm">Curva EQ de matching aplicada</div>
                               <canvas class="canvas-block" height="50" id="refEqCurveCanvas" width="320"></canvas>
                             </div>

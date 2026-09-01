@@ -97,4 +97,4 @@
   LGMDM.state.subscribe = subscribe;
   LGMDM.state.notify = notify;
   LGMDM.state.keysWithNotify = NOTIFY_KEYS.slice();
-})();
+  })(window);
