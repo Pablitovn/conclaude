@@ -61,9 +61,9 @@
     }
   }
 }
-// CL-1 (audit): el bloque @layer tokens que estaba acá solo contenía
-// `.hidden/.lgjs-hidden/.hidden-panel { display: none !important; }` —
-// una utility, no un token. Se movió a 99-utilities.css y la capa
-// `tokens` se quitó de 00-layer-order.css.
-// Las variables --v4-* / --lg-* siguen viviendo en 00-variables-theme.css
-// dentro de @layer variables. Ver 00-layer-order.css para el orden global.
+/* CL-1 (audit): el bloque @layer tokens que estaba acá solo contenía
+  `.hidden/.lgjs-hidden/.hidden-panel { display: none !important; }` —
+  una utility, no un token. Se movió a 99-utilities.css y la capa
+  `tokens` se quitó de 00-layer-order.css.
+  Las variables --v4-* / --lg-* siguen viviendo en 00-variables-theme.css
+  dentro de @layer variables. Ver 00-layer-order.css para el orden global. */

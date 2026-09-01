@@ -26,6 +26,10 @@
     .cns-body {
       grid-template-columns: 1fr;
     }
+    #cnsHandleLeft,
+    #cnsHandleRight {
+      display: none;
+    }
     #cnsPanelLeft,
     #cnsHandleLeft,
     #cnsConsoleWrap,
@@ -59,6 +63,14 @@
       grid-template-columns: minmax(0, 1fr) auto;
       padding: 0 7px;
     }
+    .lg-brand-lockup {
+      grid-column: 1;
+      justify-self: start;
+    }
+    .lg-header-actions {
+      grid-column: 2;
+      min-width: 0;
+    }
     .lg-header-center {
       display: none;
     }
@@ -83,6 +95,7 @@
     .lg-main-stack {
       padding: 8px;
       min-height: 40vh;
+      overflow: visible !important;
     }
     .sidebarResizeHandle {
       display: none;
@@ -128,7 +141,7 @@
       display: none;
     }
     .lg-workspace-workspace-tabs {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .lg-workspace-workspace-tab {
       font-size: 12px;
@@ -170,7 +183,7 @@
       grid-template-columns: 1fr;
     }
     .cns-console {
-      grid-template-columns: 64px minmax(0, 1fr);
+      grid-template-columns: var(--cns-vu-w) var(--cns-handle-w) minmax(0, 1fr);
     }
     .cns-zone-lower {
       grid-template-columns: 1fr;
