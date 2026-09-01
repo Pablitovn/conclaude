@@ -3,12 +3,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.concurrency import run_in_threadpool
 from typing import Optional, List, Dict
-import os, uuid, logging, time, asyncio, math, json, warnings
-
-# Python 3.14 puede emitir SyntaxWarning al compilar pydub.utils antiguo.
-# El warning pertenece a la dependencia, no a LGMDM; se silencia únicamente
-# para ese modulo para mantener el arranque limpio sin ocultar warnings propios.
-warnings.filterwarnings("ignore", category=SyntaxWarning, module=r"pydub\.utils")
+import os, uuid, logging, time, asyncio, math, json
 import librosa
 import numpy as np
 import soundfile as sf
@@ -152,31 +147,25 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Audio Mastering API", version="7.0.1")
-FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "https://masteringstudio.duckdns.org").rstrip("/")
-CORS_ORIGINS = [origin.strip().rstrip("/") for origin in os.getenv("CORS_ORIGINS", FRONTEND_ORIGIN).split(",") if origin.strip()]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
+    # Antes: allow_origins=["*"] — con JWT de por medio, cualquier página
+    # de internet podía pegarle a la API usando la sesión de un usuario
+    # logueado en su browser. Ahora, con dominio fijo (HTTPS via Caddy),
+    # restringido solo a ese origin.
+    allow_origins=["https://masteringstudio.duckdns.org"],
     allow_methods=["*"],
     allow_headers=["*"],
+    # BUGFIX: con frontend y API en subdominios distintos (Caddy), esto pasó
+    # a ser cross-origin de verdad. Por default el navegador solo deja leer
+    # desde JS un puñado de response headers "seguros" (Content-Type, etc.)
+    # — cualquier header custom como X-Detected-Key o X-Output-LUFS llega
+    # igual (se ve en el Network tab) pero response.headers.get(...) siempre
+    # da null salvo que el server los declare acá explícitamente. Sin esto,
+    # el pitch correction siempre mostraba "tonalidad=desconocida (conf=0%)"
+    # y la normalización LUFS nunca mostraba el LUFS de salida real.
     expose_headers=["X-Detected-Key", "X-Confidence", "X-Mode", "X-Output-LUFS", "X-Reference-Match"],
-    max_age=86400,
 )
-
-@app.middleware("http")
-async def enforce_frontend_cors(request, call_next):
-    """Defensa de última milla para evitar que el proxy deje una respuesta sin ACAO."""
-    response = await call_next(request)
-    origin = request.headers.get("origin")
-    if origin in CORS_ORIGINS:
-        response.headers.setdefault("Access-Control-Allow-Origin", origin)
-        response.headers.setdefault("Access-Control-Allow-Credentials", "true")
-        response.headers.setdefault("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-        response.headers.setdefault("Access-Control-Allow-Headers", "Authorization,Content-Type,X-Requested-With")
-        response.headers.setdefault("Vary", "Origin")
-    return response
 
 # Crear admin si no existe
 bootstrap_admin()
@@ -202,27 +191,6 @@ os.makedirs(STEM_LIBRARY_DIR, exist_ok=True)
 
 jobs = JobService()
 audio_service = AudioService(upload_dir=UPLOAD_DIR)
-
-@app.on_event("shutdown")
-def _shutdown_runtime_resources():
-    """Cierra recursos persistentes antes de terminar el proceso."""
-    try:
-        from . import streaming_engine as _streaming_engine
-    except ImportError:
-        try:
-            import streaming_engine as _streaming_engine
-        except Exception:
-            _streaming_engine = None
-    if _streaming_engine is not None:
-        try:
-            _streaming_engine.shutdown_chain_pool()
-        except Exception:
-            logger.exception("No se pudo cerrar recursos de streaming correctamente")
-
-    try:
-        ref_lib.shutdown()
-    except Exception:
-        logger.exception("No se pudo detener reference_library watcher correctamente")
 
 def sanitize_track_name(name: Optional[str], fallback: str = "mastered") -> str:
     """Limpia un nombre de tema provisto por el usuario para usarlo como filename seguro."""
@@ -376,8 +344,6 @@ app.include_router(create_info_router(
     mastering_presets=MASTERING_PRESETS,
     get_preset=get_preset,
     platform_loudness_targets=PLATFORM_LOUDNESS_TARGETS,
-    frontend_origin=FRONTEND_ORIGIN,
-    reference_library_module=ref_lib,
 ))
 # BUGFIX (seguridad): estos routers manejan jobs, archivos y datos de usuario
 # pero no tenían NINGUNA dependencia de auth — con el JWT armado y todo,

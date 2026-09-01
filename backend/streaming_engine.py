@@ -21,14 +21,42 @@ try:
 except ImportError:  # pragma: no cover - fallback for direct script execution
     from mastering import apply_mastering_chain, measure_lufs_integrated, stereo_correlation, recommend_dynamic_eq, true_peak_dbfs, mono_compatibility_db
 
-# El ProcessPoolExecutor anterior se creaba al importar el módulo aunque no se usaba.
-# En Python 3.14 eso puede dejar semáforos IPC pendientes al terminar el proceso.
-# El streaming actual procesa por bloques sin usar ese pool global, así que se elimina
-# la creación eager y se conserva una API de shutdown idempotente para el lifecycle.
+# ProcessPoolExecutor para apply_mastering_chain — numpy/scipy liberan el GIL
+# pero código Python puro no. Con process pool cada chunk corre en un proceso
+# separado sin contención del GIL. 6 workers = 8 CPUs - 2 (reservar para
+# uvicorn event loop + OS).
+_N_CHAIN_WORKERS = max(2, min(6, (os.cpu_count() or 4) - 2))
+try:
+    _CHAIN_POOL = concurrent.futures.ProcessPoolExecutor(max_workers=_N_CHAIN_WORKERS)
+except Exception as e:
+    import logging as _logging
+    _logging.error(f"No se pudo crear ProcessPoolExecutor: {e}")
+    _CHAIN_POOL = None  # Fallback a serialización
 
-def shutdown_chain_pool() -> None:
-    return None
 
+def _cleanup_pool():
+    """Limpia el ProcessPoolExecutor al salir. Evita procesos zombie en prod."""
+    global _CHAIN_POOL
+    if _CHAIN_POOL is not None:
+        try:
+            _CHAIN_POOL.shutdown(wait=True)
+            _CHAIN_POOL = None
+        except Exception:
+            pass
+
+
+atexit.register(_cleanup_pool)
+
+
+
+def _run_chain_in_process(audio_bytes: bytes, shape: tuple, sr: int, chain_params: dict) -> tuple:
+    """Wrapper top-level para ProcessPoolExecutor — debe ser picklable.
+    Reconstruye el array numpy desde bytes, corre la cadena, devuelve bytes + meters.
+    """
+    import numpy as _np
+    audio = _np.frombuffer(audio_bytes, dtype=_np.float32).reshape(shape)
+    processed, meters = apply_mastering_chain(audio, sr, **chain_params)
+    return processed.astype(_np.float32).tobytes(), processed.shape, meters
 
 CHUNK_SECONDS_DEFAULT = 4.0        # era 2.0 — mitad de chunks = mitad de DSP calls
 # Overlap-Add (OLA): el overlap da contexto a los filtros IIR pero en vez de

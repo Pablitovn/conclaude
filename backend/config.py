@@ -25,6 +25,3 @@ REFERENCE_LIBRARY_DIR = os.getenv("REFERENCE_LIBRARY_DIR", "reference_library")
 # Librería persistente de stems del mixer — permite reutilizar pistas individuales
 # sin volver a subirlas en cada sesión.
 STEM_LIBRARY_DIR = os.getenv("STEM_LIBRARY_DIR", "stem_library")
-
-PREVIEW_DIR = os.getenv("PREVIEW_DIR", "preview_sources")
-PREVIEW_TTL = int(os.getenv("PREVIEW_TTL", "3600"))
