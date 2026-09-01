@@ -378,6 +378,7 @@
   }
 
   .cns-console {
+    --cns-ana-h: clamp(190px, 24vh, 250px);
     grid-template-rows: var(--cns-wave-h) 6px var(--cns-ana-h) 6px minmax(145px, 1fr);
     gap: 6px;
   }
@@ -413,7 +414,8 @@
   .cns-analyzer-body {
     justify-content: flex-start;
     gap: 5px;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .cns-analyzer-body .studio-chain-flow,
@@ -546,7 +548,7 @@
       max-height: 360px;
     }
     .cns-console {
-      grid-template-rows: 260px 6px 135px 6px minmax(180px, auto);
+      grid-template-rows: 260px 6px minmax(210px, auto) 6px minmax(180px, auto);
     }
   }
 }

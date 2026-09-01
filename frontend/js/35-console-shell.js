@@ -1,10 +1,7 @@
 /* LGMDM — Console Shell
  * Layout controller para el grid de la consola: paneles laterales
  * (plugins disponibles / rack activo), franja de VU, alto de
- * waveform/analizador, y el split Gain Reduction / Laia — todos
- * redimensionables a mano. Además puentea el mini-chat hacia el
- * asistente real (aiPanel/aiInput/aiSend) — no duplica lógica de
- * IA, no simula nada.
+ * waveform/analizador — todos redimensionables a mano.
  */
 (function () {
   'use strict';
@@ -71,7 +68,6 @@
   function setupAllHandles() {
     const shell = document.querySelector('.cns-shell');
     const console_ = byId('cnsConsole');
-    const lower = document.querySelector('.cns-zone-lower');
     if (!shell) return;
 
     // Paneles laterales (plugins disponibles / rack activo)
@@ -85,53 +81,11 @@
       setupHandle('cnsHHandleAna', console_, '--cns-ana-h', 'y', 80, 400, false);
     }
 
-    // Split Gain Reduction / Laia dentro de la fila inferior
-    if (lower) {
-      setupHandle('cnsHandleGr', lower, '--cns-gr-w', 'x', 160, 640, false);
-    }
-  }
-
-  function setupAgentBridge() {
-    const quickInput = byId('cnsAgentQuickInput');
-    const quickSend = byId('cnsAgentQuickSend');
-    const preview = byId('cnsAgentPreview');
-    const fab = byId('aiFab');
-    const realInput = byId('aiInput');
-    const realSend = byId('aiSend');
-    const realPanel = byId('aiPanel');
-    const realMessages = byId('aiMessages');
-    if (!quickInput || !quickSend) return;
-
-    function forward() {
-      const text = quickInput.value.trim();
-      if (!text || !realInput || !realSend || !fab) return;
-      if (realPanel && realPanel.classList.contains('hidden')) fab.click();
-      realInput.value = text;
-      realInput.dispatchEvent(new Event('input', { bubbles: true }));
-      realSend.click();
-      quickInput.value = '';
-    }
-    quickSend.addEventListener('click', forward);
-    quickInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); forward(); }
-    });
-
-    // Espeja el último mensaje del asistente real en la preview de la consola,
-    // así el card no queda con el texto fijo apenas hay conversación.
-    if (realMessages && preview && 'MutationObserver' in window) {
-      const mirror = () => {
-        const last = realMessages.lastElementChild;
-        const text = last ? last.textContent.trim() : '';
-        if (text) preview.textContent = text;
-      };
-      new MutationObserver(mirror).observe(realMessages, { childList: true, subtree: true });
-    }
   }
 
   function install() {
     if (!document.querySelector('.cns-shell')) return;
     setupAllHandles();
-    setupAgentBridge();
   }
 
   if (document.readyState === 'loading') {
