@@ -16,8 +16,9 @@
   padding: 6px var(--gutter);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(6px);
-  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 96%, transparent));
-  overflow: visible;          /* ← permite ver el handle de resize */
+  -webkit-backdrop-filter: blur(6px);
+  background: linear-gradient(180deg, transparent, rgba(7, 8, 18, 0.96));
+  overflow: visible;
   /* FIX: acá había un segundo "position: relative;" pisando el sticky de
      arriba (misma propiedad declarada 2 veces en la regla, gana la última).
      position:sticky ya funciona como contexto de posicionamiento para el
@@ -67,12 +68,9 @@
   height: 30px;
   display: grid;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--p) 50%, var(--line));
+  border: 1px solid rgba(139, 210, 232, 0.5);
   border-radius: 8px;
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--p) 28%, transparent),
-    color-mix(in srgb, var(--p2) 12%, transparent)
-  );
+  background: linear-gradient(135deg, rgba(139, 210, 232, 0.18), rgba(142, 129, 200, 0.10));
   font-weight: 900;
   font-size: 16px;
   color: var(--text);
@@ -117,7 +115,7 @@
   height: 6px;
   border-radius: 50%;
   background: var(--ok);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--ok) 70%, transparent);
+  box-shadow: 0 0 10px rgba(87, 210, 111, 0.7);
 }
 
 .lg-work-state {

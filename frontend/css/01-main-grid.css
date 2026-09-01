@@ -16,6 +16,7 @@
   .lg-app {
     display: grid;
     grid-template-rows: var(--lg-shell-header-h) minmax(0, 1fr) auto;
+    height: 100vh;
     height: 100dvh;
     overflow: hidden;
   }
@@ -45,8 +46,9 @@
     min-height: 0;
     overflow: auto;
     padding: var(--gutter);
-    background: radial-gradient(circle at 72% -10%, color-mix(in srgb, var(--p2) 12%, transparent), transparent 34%),
-                radial-gradient(circle at 12% 120%, color-mix(in srgb, var(--p) 8%, transparent), transparent 26%);
+    background: rgba(18, 24, 42, 0.25);
+    background-image: radial-gradient(circle at 72% -10%, rgba(142, 129, 200, 0.12), transparent 34%),
+                      radial-gradient(circle at 12% 120%, rgba(139, 210, 232, 0.08), transparent 26%);
   }
 
   .lg-footer {
