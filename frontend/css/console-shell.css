@@ -279,10 +279,13 @@
   border-radius: var(--r2);
   background: linear-gradient(180deg, var(--s2), var(--s));
   padding: 10px 12px;
+  width: 100%;
+  max-width: 100%;
   min-height: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .cns-card[hidden] {
@@ -305,10 +308,20 @@
 
 .cns-zone-wave,
 .cns-zone-ana,
+.cns-zone-lower,
 .cns-zone-wave .cns-card,
 .cns-zone-ana .cns-card {
+  min-width: 0;
   height: 100%;
   min-height: 0;
+}
+
+.cns-zone-wave,
+.cns-zone-ana,
+.cns-zone-lower {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .cns-zone-wave .lg-wave-stage {

@@ -29,6 +29,8 @@
 
   const checkbox = () => document.getElementById('s-livepreview');
   const audioWrap = () => document.getElementById('previewAudioWrap');
+  const playButton = () => document.getElementById('previewPlayBtn');
+  const stopButton = () => document.getElementById('previewStopBtn');
   const chainPane = () => document.getElementById('pasoCadena');
   const outputPane = () => document.getElementById('pasoSalida');
 
@@ -67,6 +69,8 @@
       previewUrl = null;
     }
     ready = false;
+    if (playButton()) playButton().disabled = true;
+    if (stopButton()) stopButton().disabled = true;
     global.dispatchEvent(new CustomEvent('lgmdm:preview-ready', {
       detail: { ready: false }
     }));
@@ -93,6 +97,8 @@
     wrap.appendChild(audio);
 
     ready = true;
+    if (playButton()) playButton().disabled = false;
+    if (stopButton()) stopButton().disabled = false;
     global.dispatchEvent(new CustomEvent('lgmdm:preview-ready', {
       detail: { ready: true, audio }
     }));
@@ -335,6 +341,17 @@
     if (typeof bind !== 'function') throw new Error('Preview Controller requiere LGMDM.ui.bindOnce');
     if (!toggle) throw new Error('Contrato DOM roto: #s-livepreview no existe');
     if (!audioWrap()) throw new Error('Contrato DOM roto: #previewAudioWrap no existe');
+
+    const play = playButton();
+    const stopPreview = stopButton();
+    const getAudio = () => audioWrap()?.querySelector('audio[data-preview-ready="true"]');
+    if (play) play.addEventListener('click', () => { getAudio()?.play().catch(() => {}); });
+    if (stopPreview) stopPreview.addEventListener('click', () => {
+      const audio = getAudio();
+      if (!audio) return;
+      audio.pause();
+      audio.currentTime = 0;
+    });
 
     bind(toggle, 'change', handleToggle, 'server-preview-toggle');
     bind(global, 'lgmdm:file-selected', handleFileSelected, 'server-preview-file-selected');
