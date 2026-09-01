@@ -1,0 +1,443 @@
+AUDITORIA EXHAUSTIVA DEL FRONTEND
+================================
+
+Proyecto: conclaude
+Fecha: 2026-09-01
+Alcance: frontend/index.html, frontend/css/*.css, frontend/js/*.js
+Tipo: auditoria estatica de estructura, cascade, layout, runtime, accesibilidad,
+compatibilidad, seguridad basica, rendimiento y contratos DOM/API.
+
+RESUMEN EJECUTIVO
+------------------
+El frontend tiene una base funcional y una estructura modular, pero acumula varias
+capas de compatibilidad y archivos historicos que aumentan el riesgo de regresiones.
+No se encontraron IDs HTML duplicados, recursos referenciados inexistentes ni errores
+de parseo en los JavaScript. Los riesgos mas importantes son:
+
+1. Reference Matching puede analizar la referencia con la ruta del archivo principal
+   y rechazarla siempre.
+2. El tema Studio Theme contradice el layout grid del header.
+3. Hay polling de health duplicado cuando se cargan los modulos lazy.
+4. El bloqueo reactivo de autoplay no alcanza audio dinamico anidado.
+5. Varios controles de resize tienen una semantica ARIA contradictoria.
+6. El sistema usa APIs modernas sin una estrategia completa de fallback para el
+   objetivo declarado de navegadores antiguos.
+7. Existen superficies legacy y selectores sin contrato actual que fallan en silencio.
+
+Las modificaciones existentes en el arbol de trabajo no fueron revertidas ni asumidas
+como parte de esta auditoria. Este archivo documenta el estado actual observado.
+
+METRICAS E INVENTARIO
+---------------------
+- HTML: 1 archivo, 2055 lineas.
+- CSS: 17 archivos, 5268 lineas.
+- JavaScript: 72 archivos, 15791 lineas.
+- IDs HTML encontrados: 623.
+- IDs HTML duplicados: 0.
+- Scripts referenciados desde index.html: 67.
+- Hojas CSS referenciadas desde index.html: 16.
+- Recursos CSS/JS referenciados que no existen: 0.
+- Archivo CSS no enlazado: frontend/css/01-reset-base.css.
+- Modulos JS no enlazados directamente: 17, 18, 20, 23 y 27; estan cargados por
+  frontend/js/00-module-loader.js de forma lazy.
+- Archivo JS legacy eliminado del flujo y del arbol durante esta sesion:
+  frontend/js/00-button-handlers.js.
+
+METODO Y LIMITACIONES
+---------------------
+Se revisaron el HTML, el orden de carga, las capas CSS, selectores y media queries,
+los contratos DOM usados por JavaScript, llamadas API, listeners, observers, timers,
+uso de innerHTML y nombres repetidos. Se ejecutaron:
+
+- Conteo y validacion de recursos desde index.html.
+- Deteccion de IDs duplicados.
+- Verificacion de archivos CSS y JS referenciados.
+- node --check sobre todos los JavaScript.
+- Busqueda de comentarios // invalidos en CSS.
+- git diff --check.
+- Rebusqueda de referencias a codigo eliminado.
+
+No se ejecuto la aplicacion en un navegador real ni se hicieron screenshots o pruebas
+end-to-end. Por tanto, los problemas visuales condicionados a viewport o tema deben
+confirmarse con Playwright o DevTools.
+
+HALLAZGOS CRITICOS Y ALTOS
+==========================
+
+A-01 | ALTO | CONFIRMADO
+Reference Matching no puede analizar la referencia correctamente.
+
+Evidencia:
+- frontend/js/20-pro-upgrades.js, funcion postAnalyze.
+- La funcion rechaza cualquier argumento file que no sea window.selectedFile.
+- La funcion openReference llama Promise.all([postAnalyze(track), postAnalyze(ref)]).
+- track es el archivo seleccionado, pero ref es necesariamente otro archivo.
+- LGMDM.analysis.request() usa el archivo global seleccionado y no recibe el archivo
+  que postAnalyze intenta pasar.
+
+Impacto:
+La comparacion de referencia falla con el mensaje de archivo no coincidente o, si se
+elimina la validacion sin corregir la API, ambas peticiones pueden analizar el mismo
+archivo. La funcion principal de Reference Matching queda rota.
+
+Recomendacion:
+Separar las rutas postAnalyzeSelected() y postAnalyzeFile(file). La segunda debe
+construir su propio FormData y enviar explicitamente el archivo recibido, o extender
+LGMDM.analysis.request() para aceptar un File sin modificar el estado global. Agregar
+una prueba con dos objetos File distintos y verificar que se envian dos cuerpos.
+
+A-02 | ALTO | CONDICIONADO A ACTIVAR STUDIO THEME
+Studio Theme cambia el modelo de layout del header.
+
+Evidencia:
+- frontend/css/02-header.css define .lg-header como display:grid con tres columnas.
+- frontend/css/10-stage-visibility.css asigna grid-column a .lg-header-center,
+  .lg-brand-lockup y .lg-header-actions.
+- frontend/css/studio-theme.css redefine .lg-header con display:flex.
+
+Impacto:
+Al activar el tema, las reglas grid-column dejan de controlar el posicionamiento.
+Marca, estado y acciones pueden reordenarse, perder el centrado o producir un header
+inestable. El resultado depende de flex ordering y del contenido disponible.
+
+Recomendacion:
+Mantener display:grid en Studio Theme y limitar el tema a colores, bordes y fondos,
+o definir una variante flex completa sin conservar propiedades grid-column.
+
+A-03 | ALTO | CONFIRMADO AL CARGAR MODULOS LAZY
+Hay dos ciclos de health check para el mismo servicio.
+
+Evidencia:
+- frontend/js/23-pro-console.js inicia un setInterval(checkApiHealth, 30000).
+- frontend/js/27-health-tooltips.js inicia su propio intervalo de checkHealth.
+- Ambos modulos estan incluidos en la lista lazy de 00-module-loader.js.
+- 23-pro-console tambien ejecuta una comprobacion inicial y escucha focus.
+
+Impacto:
+Se generan solicitudes duplicadas cada 30 segundos, aumenta el trafico y pueden
+mostrarse estados contradictorios. El problema existe aunque Stage 1 oculte la
+superficie visual de health, porque el modulo continua ejecutandose.
+
+Recomendacion:
+Centralizar el polling en un servicio LGMDM.health con un unico timer y eventos de
+estado. Los consumidores visuales deben suscribirse, no consultar el endpoint por
+separado. Pausar el timer con document.visibilityState.
+
+A-04 | ALTO | CONFIRMADO
+Los controles de resize tienen contratos ARIA incompatibles.
+
+Evidencia:
+- En frontend/index.html varios handles de resize tienen aria-hidden="true".
+- Algunos handles tambien son interactivos o enfocables y poseen role="separator" y
+  tabindex="0".
+- frontend/css/00-theme.css trata esos mismos nodos como controles de resize.
+
+Impacto:
+Un elemento enfocable oculto para tecnologias asistivas puede recibir foco sin
+nombre ni semantica util. El lector de pantalla no puede operar el control de forma
+coherente y el foco puede parecer desaparecer.
+
+Recomendacion:
+Para handles realmente interactivos, quitar aria-hidden, agregar aria-label,
+aria-orientation, aria-valuemin, aria-valuemax y aria-valuenow, y soportar teclas
+ArrowLeft/Right o ArrowUp/Down. Si un handle no debe ser accesible, quitar tambien
+ tabindex y cualquier listener interactivo.
+
+HALLAZGOS MEDIOS
+================
+
+M-01 | MEDIO | CONDICIONADO A RESPUESTA API MALFORMADA
+Insercion de datos de analisis mediante innerHTML sin normalizacion completa.
+
+Evidencia:
+- frontend/js/09-visualizers.js inserta valores de analisis dentro de HTML.
+- Se esperan campos numericos, pero no todos pasan por Number.isFinite antes de la
+  interpolacion.
+
+Impacto:
+Si el backend devuelve texto controlado por un atacante o datos malformados, existe
+riesgo de inyeccion HTML en la vista de analisis. El riesgo depende de la confianza
+en el backend y de que el valor llegue a la plantilla.
+
+Recomendacion:
+Construir nodos con textContent para valores dinamicos, validar numeros con una
+funcion comun y escapar cualquier texto recibido antes de interpolarlo.
+
+M-02 | MEDIO | CONDICIONADO A CONFIGURACION EXTERNA
+Studio Controller interpola etiquetas de configuracion en innerHTML.
+
+Evidencia:
+- frontend/js/33-studio-controller.js genera markup usando family y p.label.
+- Actualmente PLUGINS parece ser configuracion interna, pero el limite de confianza
+  no esta documentado ni protegido.
+
+Impacto:
+Una modificacion externa de la configuracion podria inyectar markup. Ademas, el
+markup generado dificulta auditoria y mantenimiento.
+
+Recomendacion:
+Usar DOM APIs y textContent para etiquetas. Si se mantiene la plantilla, escapar
+cada valor con el helper canonico y validar el esquema de PLUGINS.
+
+M-03 | MEDIO | CONFIRMADO POR IMPLEMENTACION
+Uploads FormData pueden quedar pendientes indefinidamente.
+
+Evidencia:
+- frontend/js/00-api.js asigna timeoutMs = 0 por defecto cuando el body es FormData.
+- Varias operaciones de audio y analisis usan FormData.
+- El timeout solo se activa si el llamador lo pasa expresamente.
+
+Impacto:
+Una subida bloqueada o un backend que no responde puede dejar la UI en estado de
+procesamiento sin reintento ni cancelacion. En mobile esto puede agotar recursos o
+mantener una conexion abierta demasiado tiempo.
+
+Recomendacion:
+Definir timeout de upload configurable y AbortController por operacion. Mostrar
+cancelar/reintentar y distinguir timeout de error HTTP. Mantener timeout 0 solo para
+operaciones que realmente requieren duracion ilimitada y documentarlas.
+
+M-04 | MEDIO | CONFIRMADO
+El observer anti-autoplay no inspecciona audio insertado en descendientes.
+
+Evidencia:
+- frontend/js/00-no-autoplay.js observa document.documentElement con childList:true.
+- No usa subtree:true.
+- Los audios se crean dentro de wrappers y paneles descendientes del body.
+
+Impacto:
+El cleanup inicial funciona, pero un elemento audio agregado dentro de un contenedor
+no es detectado por el observer. Puede conservar autoplay si alguna ruta dinamica lo
+establece.
+
+Recomendacion:
+Observar document.body con childList:true y subtree:true, o eliminar el observer y
+centralizar la creacion de audio en una funcion que siempre retire autoplay. Medir
+el coste si se elige subtree.
+
+M-05 | MEDIO | CONFIRMADO
+El monitor de rendimiento conserva datos y recorre un array creciente.
+
+Evidencia:
+- frontend/js/00-performance-monitoring.js revisa recursos aproximadamente cada 5 s.
+- Usa busquedas sobre una coleccion que crece y no tiene limite de retencion claro.
+
+Impacto:
+El coste puede crecer con la sesion y aumentar en dispositivos lentos. La retencion
+de timings tambien incrementa memoria sin aportar valor indefinidamente.
+
+Recomendacion:
+Usar Set para recursos ya vistos, conservar solo una ventana de muestras o maximo
+N elementos, y pausar el intervalo cuando la pestaña esta oculta.
+
+M-06 | MEDIO/BAJO | CONFIRMADO
+El RAF de la consola continua activo fuera del workspace Console.
+
+Evidencia:
+- frontend/js/15-master-console.js mantiene un ciclo requestAnimationFrame.
+- El ciclo evita parte del dibujo cuando cambia la pestaña, pero no necesariamente
+  cancela la programacion del siguiente frame.
+
+Impacto:
+Consumo innecesario de CPU y bateria, especialmente en mobile o cuando Analysis esta
+abierto durante una sesion larga.
+
+Recomendacion:
+Arrancar RAF al entrar en Console y cancelarlo al salir. Como minimo, no programar
+el siguiente frame mientras el workspace no sea console.
+
+M-07 | MEDIO | CONDICIONADO A MOVIL
+El overflow del main stack tiene reglas fuertes y varias fuentes de altura.
+
+Evidencia:
+- frontend/css/10-stage-visibility.css fuerza .lg-main-stack overflow:hidden !important.
+- frontend/css/responsive.css necesita revertirlo con overflow:visible !important en
+  max-width:900px.
+- Hay combinaciones de height:100%, min-height, 100vh y 100dvh en shell, body y
+  workspace.
+
+Impacto:
+Un nuevo contenido dinamico o un ajuste de altura puede quedar recortado dentro del
+main stack. La cascada actual es determinista, pero fragil ante nuevas superficies.
+
+Recomendacion:
+Definir un unico propietario del scroll: en desktop el workspace interno y en mobile
+body/main stack. Evitar que dos capas necesiten !important para corregirse.
+
+HALLAZGOS BAJOS Y DEUDA TECNICA
+===============================
+
+L-01 | BAJO | CONFIRMADO
+CSS legacy no enlazado.
+
+Evidencia:
+- frontend/css/01-reset-base.css existe pero no aparece como link activo en index.html.
+- Contiene reglas base duplicadas y no esta envuelto en @layer.
+
+Impacto:
+No rompe el estado actual, pero puede reintroducir reglas fuera de la cascada si
+alguien lo enlaza en el futuro. El nombre y ubicacion sugieren que deberia estar
+activo, lo que induce errores de mantenimiento.
+
+Recomendacion:
+Eliminarlo si ya no tiene consumidores, o moverlo a una carpeta archive/docs y dejar
+un registro de migracion. No volver a enlazarlo sin envolverlo en la capa correcta.
+
+L-02 | BAJO | CONFIRMADO COMO INACTIVO
+Bridge y mixer conservan selectores legacy sin contrato HTML actual.
+
+Evidencia:
+- frontend/js/34-shell-bridge.js busca consoleTrackTitleTop, consoleTrackMetaTop,
+  stageTrackName, healthLufs, healthPeak y healthMode.
+- Esos IDs no aparecen en el HTML actual.
+- frontend/js/13-mixer-ui.js busca .content-shell, ausente en index.html.
+
+Impacto:
+Estas rutas fallan silenciosamente o no actualizan nada. Aumentan la superficie de
+codigo y hacen dificil distinguir compatibilidad real de codigo muerto.
+
+Recomendacion:
+Eliminar las rutas legacy si no existe otra pagina que las use, o registrar los
+contratos por pagina y proteger los adaptadores con una condicion explicita.
+
+L-03 | BAJO | CONFIRMADO
+Campos de autenticacion generados sin label asociado.
+
+Evidencia:
+- frontend/js/00-auth.js crea inputs de email, password y nombre usando placeholder.
+- No crea elementos label asociados mediante for/id.
+
+Impacto:
+Lectores de pantalla, autocompletado y navegacion por formulario reciben informacion
+incompleta. Placeholder no reemplaza una etiqueta accesible.
+
+Recomendacion:
+Agregar label visible o visually-hidden con for coincidente. Mantener autocomplete,
+aria-describedby para mensajes y mensajes de error asociados.
+
+L-04 | BAJO/MEDIO | CONDICIONADO AL SOPORTE WIN7/IE
+Dependencia amplia de APIs y sintaxis modernas.
+
+Evidencia:
+Se observaron optional chaining (?.), nullish coalescing (??), replaceChildren(),
+:scope, dvh, color-mix(), backdrop-filter, requestIdleCallback y
+crypto.randomUUID(). Hay ejemplos en 00-api.js, 32-flex-layout.js, 02-header.css y
+otros modulos.
+
+Impacto:
+IE y navegadores muy antiguos pueden fallar al parsear JavaScript completo por ?. y
+??, no solo ignorar una regla CSS. Windows 7 no define por si mismo la capacidad: el
+resultado depende del navegador instalado.
+
+Recomendacion:
+Definir una matriz minima real (por ejemplo Chrome/Firefox/Edge soportados) y decidir
+si Win7 usa navegador moderno portable o si requiere bundle transpilado. Agregar
+fallbacks para 100dvh, color-mix, backdrop-filter y requestIdleCallback. No prometer
+compatibilidad con IE sin transpiler y polyfills.
+
+L-05 | BAJO | MANTENIMIENTO
+Hay muchos nombres de funciones repetidos, aunque no son colisiones globales.
+
+Evidencia:
+Se repiten nombres como init, clamp, set, get, update, install, mirror, clear,
+formatValue y onMove en varios archivos. La mayoria vive dentro de IIFE o closures.
+
+Impacto:
+No se comprobo una colision global fatal, pero el patron dificulta busquedas y puede
+llevar a errores al mover funciones fuera de su closure.
+
+Recomendacion:
+Mantener funciones locales, evitar promoverlas a window, y usar nombres con prefijo
+cuando un helper deba formar parte de LGMDM publico.
+
+L-06 | BAJO | MANTENIMIENTO
+La cascada CSS tiene duplicacion significativa de reglas de layout.
+
+Evidencia:
+- .cns-body, .cns-console, .cns-console-wrap y .cns-zone-lower aparecen en
+  console-shell.css, 10-stage-visibility.css y responsive.css.
+- Hay varios bloques @layer stage-visibility en un mismo archivo.
+- El orden global depende de 00-layer-order.css y de varios !important.
+
+Impacto:
+El estado actual puede ser correcto, pero un cambio posterior en un breakpoint puede
+ser anulado sin que resulte obvio. Esto ya produjo conflictos en grids de consola,
+handles y tabs durante la auditoria.
+
+Recomendacion:
+Dejar la geometria base en console-shell.css y reservar stage-visibility para
+visibilidad. Centralizar responsive en responsive.css. Documentar excepciones que
+necesiten !important.
+
+L-07 | BAJO | LIMPIEZA
+No hay evidencia de IDs HTML duplicados ni scripts faltantes.
+
+Esto es una verificacion positiva, no un defecto. El parser encontro 623 IDs unicos,
+y todas las rutas src/href activas existen. Los cinco modulos no enlazados directamente
+son carga lazy intencional.
+
+REVISION DE CAMBIOS REALIZADOS DURANTE LA SESION
+================================================
+
+Durante la sesion se detectaron y corrigieron problemas de CSS responsive y cascade:
+- handles laterales que ocupaban filas en mobile;
+- columna implicita del header;
+- overflow movil recortado;
+- grid movil de consola con columna de handle perdida;
+- tabs con tres tracks aunque solo dos estaban visibles;
+- comentarios // invalidos en CSS.
+
+Tambien se limpio JavaScript:
+- se elimino 00-button-handlers.js, no cargado y sin consumidores actuales;
+- se elimino la escucha duplicada que solicitaba Analysis al abrir la pestaña;
+- se elimino handleAnalysisWorkspaceOpen(), sin referencias;
+- se elimino audioState, sin lecturas;
+- se elimino la referencia comentada al modulo legacy en index.html.
+
+Estas limpiezas pasaron node --check y no dejaron referencias residuales segun las
+busquedas realizadas.
+
+DUPLICADOS Y LLAMADAS REPETIDAS
+===============================
+
+No todos los nombres repetidos son bugs. init, clamp, set, get, onMove, onUp,
+formatValue y otros aparecen en closures independientes. No se hallo una colision
+global confirmada por nombre.
+
+Si se requiere una segunda etapa de limpieza, las areas prioritarias son:
+1. Unificar health polling de 23-pro-console.js y 27-health-tooltips.js.
+2. Revisar timers de 07-mastering-actions.js, 08-reference-mastering.js,
+   10-meters-dashboard.js y 30-preview-controller.js para pausar con visibilitychange.
+3. Auditar bindAuthEvents() porque renderAuthOverlay() puede reconstruir markup y
+   volver a registrar listeners; usar bindOnce o un guard por instancia.
+4. Revisar todos los innerHTML dinamicos con una politica comun de escape.
+5. Instrumentar llamadas API para detectar doble request por accion del usuario.
+
+PLAN DE CORRECCION PRIORIZADO
+=============================
+
+P0 - corregir Reference Matching con una funcion que acepte el File de referencia.
+P1 - centralizar health polling y corregir el observer anti-autoplay.
+P1 - resolver ARIA de handles interactivos.
+P1 - definir timeout/cancelacion para uploads.
+P1 - hacer compatible Studio Theme con el modelo real del header.
+P2 - eliminar o archivar CSS y adaptadores legacy sin consumidores.
+P2 - endurecer innerHTML y validacion de datos API.
+P2 - pausar RAF/timers cuando la pestaña o workspace no esta activo.
+P3 - decidir formalmente matriz de navegadores y estrategia de transpilation/polyfills.
+P3 - reducir duplicacion de reglas CSS y documentar propietarios de layout.
+
+CONCLUSION
+==========
+
+El frontend no presenta corrupcion sintactica basica: HTML sin IDs duplicados, recursos
+existentes y JavaScript parseable. El riesgo principal no es una llave faltante, sino
+la acumulacion de contratos paralelos: modulos lazy con polling propio, adaptadores
+legacy, reglas CSS repetidas y APIs modernas mezcladas con un objetivo de Windows 7.
+
+El defecto funcional mas urgente es Reference Matching. Despues conviene abordar
+health polling, autoplay, uploads y accesibilidad. Las correcciones responsive hechas
+en esta sesion reducen riesgos actuales, pero no sustituyen una prueba real en
+navegadores y viewports. Para cerrar completamente la auditoria se recomienda una
+suite Playwright con 1440x900, 1180x800, 960x800, 768x1024, 640x900 y 390x844, probando
+carga, cambio de tabs, upload, Analysis, Reference Matching, resize, auth y temas.

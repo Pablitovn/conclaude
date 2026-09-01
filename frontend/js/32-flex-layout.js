@@ -28,11 +28,16 @@
   const KEY_C = 'lgmdm:flex-sidebar-collapsed';
   const MIN = 250;
   const isDesktop = () => window.innerWidth >= 960;
+  const sidebarEnabled = () => !sidebar.hidden && !sidebar.hasAttribute('hidden');
   const maxWidth = () => Math.max(420, Math.min(560, Math.round(window.innerWidth * 0.42)));
   const clamp = (value) => Math.max(MIN, Math.min(maxWidth(), Number(value) || 320));
 
   function apply(width) {
     if (!isDesktop()) return null;
+    if (!sidebarEnabled()) {
+      layoutRoot.style.setProperty('grid-template-columns', 'minmax(0, 1fr)', 'important');
+      return null;
+    }
     const px = Math.round(clamp(width));
     root.style.setProperty('--lg-sidebar-w', `${px}px`);
     layoutRoot.style.setProperty(
@@ -52,7 +57,9 @@
     layoutRoot.classList.toggle('sidebar-collapsed', collapsed);
 
     if (isDesktop()) {
-      if (collapsed) {
+      if (!sidebarEnabled()) {
+        layoutRoot.style.setProperty('grid-template-columns', 'minmax(0, 1fr)', 'important');
+      } else if (collapsed) {
         layoutRoot.style.setProperty(
           'grid-template-columns',
           '0 0 minmax(0, 1fr)',
@@ -137,6 +144,10 @@
   function fit() {
     if (!isDesktop()) {
       layoutRoot.style.removeProperty('grid-template-columns');
+      return;
+    }
+    if (!sidebarEnabled()) {
+      layoutRoot.style.setProperty('grid-template-columns', 'minmax(0, 1fr)', 'important');
       return;
     }
     if (sidebar.classList.contains('collapsed')) return;
